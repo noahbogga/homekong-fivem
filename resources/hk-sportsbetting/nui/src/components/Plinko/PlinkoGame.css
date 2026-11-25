@@ -1,0 +1,58 @@
+.plinko-area {
+  flex-direction: column;
+  padding-bottom: 0;
+}
+
+.plinko-canvas {
+  width: 100%;
+  height: calc(100% - 40px);
+}
+
+.plinko-buckets {
+  display: flex;
+  gap: 2px;
+  padding: 0 30px;
+  width: 100%;
+  position: absolute;
+  bottom: 12px;
+}
+
+.plinko-bucket {
+  flex: 1;
+  text-align: center;
+  padding: 6px 2px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.plinko-bucket.high {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--gold);
+}
+.plinko-bucket.med {
+  background: rgba(0, 200, 255, 0.15);
+  color: var(--accent);
+}
+.plinko-bucket.low {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-dim);
+}
+.plinko-bucket.hit {
+  transform: scale(1.15);
+  box-shadow: 0 0 12px currentColor;
+}
+
+.plinko-last-result {
+  background: var(--bg-panel);
+  border-radius: var(--radius);
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.plinko-last-result .good { color: var(--green); }
+.plinko-last-result .bad { color: var(--red); }

@@ -1,0 +1,1665 @@
+/* hk-speedo :: style.css — Racing gauge with glow effects */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: transparent; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+#speedo-container {
+    position: fixed;
+    bottom: 194px;
+    right: 164px;
+    width: 330px;
+    height: 330px;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.6);
+    transition: opacity 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* PERF: isolate this subtree so the per-frame arc repaints (stroke-dashoffset is
+       NOT compositor-accelerated in CEF) don't invalidate layout/style outside the
+       gauge. `layout style` containment avoids clipping (we need overflow:visible for
+       edge labels/glows), so no `paint`/`size` here. Promote to its own GPU layer. */
+    contain: layout style;
+    will-change: transform, opacity;
+}
+#speedo-container.hidden {
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+}
+#speedo-container.visible {
+    opacity: 1;
+    transform: scale(1.0);
+    pointer-events: none;
+}
+#speedo-container.visible.idle { opacity: 1; }
+
+/* Electric vehicle: no fuel — hide the fuel bar entirely (full + minimal layouts). */
+#speedo-container.ev #fuel-row { display: none !important; }
+
+/* EV full-ring = CENTER-SPLIT power meter. Hide the normal single rpm fill + its blue
+   start cap; show the two split half-arcs instead (green throttle right, red brake
+   left, both revealing from the top-centre). */
+.arc-rpm-ev-thr, .arc-rpm-ev-brake, .arc-rpm-ev-friction { display: none; }
+/* PURE EV: no revs at all — hide the normal rpm fill/cap/halo, redline zone, shift lights.
+   (rpm-halo is the NORMAL-mode glow twin — must hide it too or it renders as a stray blue
+   arc behind the EV split ring.) */
+#speedo-container.ev #rpm-fill,
+#speedo-container.ev #rpm-cap,
+#speedo-container.ev #rpm-halo,
+#speedo-container.ev .redline-zone,
+#speedo-container.ev #shift-lights { display: none !important; }
+/* SINGLE-GEAR COMFORT AUTO (mode 0): keep the normal RPM ring (real ICE engine, real
+   revs) but hide the F1 shift-light dots — a full-auto has no shift to signal. */
+#speedo-container.single-gear #shift-lights { display: none !important; }
+/* HYBRID: reuses the EV split ring for regen, but has its OWN inner blue RPM ring — so
+   hide the NORMAL rpm fill/cap + the normal (outer-position) redline zone. The inner
+   ring + its shift-lights/redline are handled below (kept in ICE, hidden in e-mode). */
+#speedo-container.hybrid #rpm-fill,
+#speedo-container.hybrid #rpm-cap,
+#speedo-container.hybrid #rpm-halo,
+#speedo-container.hybrid .redline-zone { display: none !important; }
+
+/* Regen-mode STATUS PILL (EV only) — after the E pill. 'C' coast (blue) / 'R' regen.
+   Regen colour by stage: D1/D2 = green, D3 = neon purple. Hidden on non-EVs. */
+.indicator.regen-coast {
+    color: #4aa8ff;
+    background: rgba(74, 168, 255, 0.14);
+    border-color: rgba(74, 168, 255, 0.4);
+}
+.indicator.regen-d12 {
+    color: #37d65a;
+    background: rgba(55, 214, 90, 0.14);
+    border-color: rgba(55, 214, 90, 0.4);
+}
+.indicator.regen-d3 {
+    color: #b45cff;
+    background: rgba(180, 92, 255, 0.16);
+    border-color: rgba(180, 92, 255, 0.5);
+}
+/* HOLD (D3 actively holding the car stopped) — pulse. */
+.indicator.regen-hold {
+    animation: regen-hold-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes regen-hold-pulse {
+    0%   { box-shadow: 0 0 3px rgba(180, 92, 255, 0.3); }
+    100% { box-shadow: 0 0 11px rgba(180, 92, 255, 0.8); }
+}
+/* Level-change flash. */
+.indicator.regen-flash { animation: regen-flash 0.4s ease-out 1; }
+@keyframes regen-flash {
+    0% { filter: brightness(2.2); }
+    100% { filter: brightness(1); }
+}
+
+/* ===== LAUNCH CONTROL pill (#ind-launch) =========================================
+   State is 100% from hk-handling (GetLaunchState / bag). Four looks:
+     .lc-idle  — launch-capable + ready, nothing happening yet -> GREY, static.
+     .lc-prep  — handbrake held, staging -> GREY box, RED pulse ring around the LC.
+     .lc-armed — throttle held, STAGED (about to fire) -> solid RED + red pulse.
+     .lc-boost — LAUNCHED, boost window active -> GOLD + gold pulse, fades to grey on end.
+   Base grey styling shared; the state classes tint colour + drive the pulse. */
+.indicator.lc-idle,
+.indicator.lc-prep {
+    color: #9aa4ad;                              /* grey text */
+    background: rgba(154, 164, 173, 0.10);
+    border-color: rgba(154, 164, 173, 0.30);
+    box-shadow: 0 0 5px rgba(154, 164, 173, 0.18);
+}
+/* PREP: box stays grey, a RED glow pulses around it (handbrake held, not yet fired). */
+.indicator.lc-prep {
+    animation: lc-prep-pulse 0.6s ease-in-out infinite alternate;
+}
+@keyframes lc-prep-pulse {
+    0%   { box-shadow: 0 0 3px rgba(255, 60, 60, 0.35); }
+    100% { box-shadow: 0 0 12px rgba(255, 60, 60, 0.9); }
+}
+/* ARMED: solid RED pill + red pulse (staged — throttle held, ready to drop). */
+.indicator.lc-armed {
+    color: #ff4040;
+    background: rgba(255, 64, 64, 0.14);
+    border-color: rgba(255, 64, 64, 0.45);
+    animation: lc-armed-pulse 0.45s ease-in-out infinite alternate;
+}
+@keyframes lc-armed-pulse {
+    0%   { color: #ff4040; box-shadow: 0 0 4px rgba(255, 64, 64, 0.3); }
+    100% { color: #ff9a9a; box-shadow: 0 0 13px rgba(255, 80, 80, 0.95); }
+}
+/* BOOST: GOLD pill + gold pulse during the launch boost window (fades back to grey when
+   phase returns to off — the JS just swaps the class, CSS handles the colour). */
+.indicator.lc-boost {
+    color: #ffcf3a;
+    background: rgba(255, 207, 58, 0.16);
+    border-color: rgba(255, 207, 58, 0.5);
+    animation: lc-boost-pulse 0.4s ease-in-out infinite alternate;
+}
+@keyframes lc-boost-pulse {
+    0%   { color: #ffcf3a; box-shadow: 0 0 5px rgba(255, 207, 58, 0.35); }
+    100% { color: #ffe89a; box-shadow: 0 0 14px rgba(255, 220, 120, 1); }
+}
+/* Both EV split arcs: identical geometry (same INNER_R, same stroke-width). Keep the
+   glow blur/alpha matched so neither side LOOKS thicker than the other (red at high
+   alpha reads heavier than teal, which made them seem uneven). */
+/* The EV split ring is shared by PURE EV and HYBRID (same look). */
+#speedo-container.ev .arc-rpm-ev-thr,
+#speedo-container.ev .arc-rpm-ev-brake,
+#speedo-container.hybrid .arc-rpm-ev-thr,
+#speedo-container.hybrid .arc-rpm-ev-brake {
+    display: block;
+    fill: none;
+    stroke-width: 10.08;
+    stroke-linecap: butt;
+    transition: stroke-dashoffset 0.06s linear;
+}
+/* RIGHT = throttle/power (teal). */
+#speedo-container.ev .arc-rpm-ev-thr,
+#speedo-container.hybrid .arc-rpm-ev-thr {
+    stroke: #0DE0A8;
+    filter: drop-shadow(0 0 2.5px rgba(13, 224, 168, 0.45));
+}
+/* LEFT = regen (always GREEN now — the grey friction is a SEPARATE overlay arc, below,
+   not a colour swap on this one). */
+#speedo-container.ev .arc-rpm-ev-brake,
+#speedo-container.hybrid .arc-rpm-ev-brake {
+    stroke: #37d65a;   /* regen = green */
+    filter: drop-shadow(0 0 2.5px rgba(55, 214, 90, 0.4));
+}
+/* FRICTION overlay: a translucent GREY band drawn ON TOP of the green regen arc (same
+   geometry, layered after it) to show the brake PEDAL contribution extending over regen.
+   Semi-transparent so the green underneath still reads through it. */
+#speedo-container.ev .arc-rpm-ev-friction,
+#speedo-container.hybrid .arc-rpm-ev-friction {
+    display: block;
+    fill: none;
+    stroke: rgba(190, 200, 210, 0.55);   /* translucent grey */
+    stroke-width: 10.08;
+    stroke-linecap: butt;
+    filter: drop-shadow(0 0 2px rgba(160, 170, 180, 0.35));
+    transition: stroke-dashoffset 0.06s linear;
+}
+
+/* ===== HYBRID inner RPM ring ======================================================
+   A hybrid looks exactly like a PURE EV (it reuses the .arc-rpm-ev-* split ring above
+   for power/regen — same geometry, so none of the old redline glitch). The ONLY hybrid
+   extra is a thin blue RPM ring sitting INSIDE that meter, revealing engine revs when
+   the ICE is engaged. Track + fill + a static redline band; hidden unless .hybrid. */
+.hy-rpm, .hy-rpm-track, .hy-rpm-redline { display: none; }
+#speedo-container.hybrid .hy-rpm,
+#speedo-container.hybrid .hy-rpm-track,
+#speedo-container.hybrid .hy-rpm-redline { display: block; }
+
+/* Inner RPM track (dim, full sweep). */
+.hy-rpm-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 5; }
+
+/* Blue RPM fill — solid blue (this ring only carries revs; the redline band below marks
+   the top), dashoffset reveal. */
+.hy-rpm {
+    fill: none;
+    stroke: #4aa8ff;
+    stroke-width: 5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 2px rgba(80,150,255,0.55));
+    transition: stroke-dashoffset 0.04s linear;
+}
+/* Static redline band on the inner ring (top ~15%) — same idea as the normal RPM
+   redline the user asked to keep, just sized for the inner ring. Drawn under the fill
+   so the blue rides over it as revs climb into the red. */
+.hy-rpm-redline {
+    fill: none;
+    stroke: rgba(255, 40, 40, 0.35);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+/* Hybrid in E-MODE: no engine revs — hide the inner RPM ring (fill + track) and the F1
+   shift dots; keep the redline band hidden too. The EV split ring + speed ring stay,
+   so an e-mode hybrid reads exactly like a pure EV. */
+#speedo-container.hybrid.emode .hy-rpm,
+#speedo-container.hybrid.emode .hy-rpm-track,
+#speedo-container.hybrid.emode .hy-rpm-redline,
+#speedo-container.hybrid.emode #shift-lights { display: none !important; }
+
+/* ===== SEMI / KERS charge arc =====================================================
+   A semi-hybrid (918/P1/LaFerrari) is an ICE car — it keeps the normal tach + gear
+   numbers. Its e-motor's live energy flow shows as a THIN arc hugging the rpm ring
+   (SEMI_R, just outside it). Fills from the base and swaps colour:
+     .semi-charge -> GREEN  (regen recovering energy on lift)
+     .semi-boost  -> AMBER  (e-assist adding torque under throttle)
+   Hidden on every non-semi car (only #speedo-container.semi reveals it). */
+.arc-semi { display: none; }
+#speedo-container.semi .arc-semi {
+    display: block;
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke: #37d65a;   /* default green (charge); overridden amber while boosting */
+    filter: drop-shadow(0 0 3px rgba(55, 214, 90, 0.5));
+    /* slightly slower than the EV arcs — energy flow reads better as a smooth glide */
+    transition: stroke-dashoffset 0.08s linear, stroke 0.15s linear, filter 0.15s linear;
+}
+#speedo-container.semi .arc-semi.semi-charge {
+    stroke: #37d65a;   /* GREEN — recovering (regen on lift) */
+    filter: drop-shadow(0 0 3px rgba(55, 214, 90, 0.55));
+}
+#speedo-container.semi .arc-semi.semi-boost {
+    stroke: #ffb130;   /* AMBER — e-assist / boost under throttle */
+    filter: drop-shadow(0 0 3.5px rgba(255, 177, 48, 0.6));
+}
+/* Semi is a normal-tach car: it must NOT hide the rpm ring / shift lights the way .ev
+   and .hybrid do. No overrides needed — .semi simply isn't in those selectors. */
+
+/* ===== SEMI-LOOK PHEV IN E-MODE (.emode-bar) ======================================
+   A full-PHEV wearing the SEMI cluster (918/P1) that has slipped into pure-EV drive.
+   It keeps the SAME normal tach ring geometry — but the ring now reads THROTTLE, not
+   revs (JS feeds it the pedal), so it must READ electric: recolour the fill/halo/cap
+   GREEN and kill the rev warnings (redline zone + shift-light dots — there are no revs
+   to warn about). The thin semi charge/boost arc stays visible (still a semi car). */
+#speedo-container.emode-bar #rpm-fill {
+    stroke: #37d65a;   /* GREEN throttle bar (was the blue rev gradient) */
+    filter: drop-shadow(0 0 3px rgba(55, 214, 90, 0.5));
+    /* The throttle bar is NOT a rev tach — it doesn't need the ~1-frame flutter transition
+       the ICE .arc-rpm uses to keep rev buzz. Give it a longer glide so the pedal-driven
+       fill eases instead of snapping (only in e-mode; ICE mode below keeps rev flutter). */
+    transition: stroke-dashoffset 0.10s linear, opacity 0.16s ease !important;
+}
+#speedo-container.emode-bar #rpm-halo {
+    stroke: rgba(55, 214, 90, 0.22) !important;
+}
+#speedo-container.emode-bar #rpm-cap {
+    fill: #37d65a !important;
+    filter: drop-shadow(0 0 3px rgba(55, 214, 90, 0.35));
+}
+#speedo-container.emode-bar .redline-zone,
+#speedo-container.emode-bar #shift-lights { display: none !important; }
+
+/* MODE-FLIP CROSSFADE. The tach bar's stroke can't CSS-transition between the ICE blue
+   GRADIENT and the e-mode solid GREEN (gradient<->colour isn't interpolatable), and the
+   VALUE also jumps (throttle vs rpm) at the flip. A semi-look PHEV has no runModeSweep
+   (that's hybrid-only), so the swap popped. Instead JS adds .mode-flip for a beat on the
+   e-mode<->ICE change: fade the bar (+cap/halo) to 0, the colour+value swap in the
+   invisible trough, then it fades back in — masks both the recolour and the value jump.
+   Scoped to .semi so NORMAL cars keep the flutter-tuned .arc-rpm transition untouched. Only
+   an OPACITY transition is added (ICE-mode rev flutter on #rpm-fill's stroke-dashoffset is
+   left to .arc-rpm's own 0.016s; .emode-bar overrides that to a glide in e-mode). */
+#speedo-container.semi #rpm-fill,
+#speedo-container.semi #rpm-halo,
+#speedo-container.semi #rpm-cap { transition: stroke-dashoffset 0.016s linear, opacity 0.16s ease; }
+#speedo-container.semi.mode-flip #rpm-fill,
+#speedo-container.semi.mode-flip #rpm-halo,
+#speedo-container.semi.mode-flip #rpm-cap { opacity: 0 !important; }
+
+/* Drive-mode theming: eco = cool blue, sport = warm red. Tints only the gear-text
+   glow now (the old whole-SVG drop-shadow was removed — see #gauge-svg below). */
+#speedo-container.theme-sport #gear-display {
+    text-shadow: 0 0 13px rgba(255, 80, 40, 0.55);
+}
+
+/* LITE MODE — strips the expensive paint: all glow overlays, the night backlight, and
+   the per-arc drop-shadow filters. Keeps the rings, gear, speed, bars and indicators.
+   This is the big FPS lever (no filtered/animated layers repainting each frame). */
+#speedo-container.lite #glow-overlay,
+#speedo-container.lite #redline-overlay,
+#speedo-container.lite #mode-overlay,
+#speedo-container.lite #backlight {
+    display: none !important;
+}
+#speedo-container.lite .arc-speed,
+#speedo-container.lite .arc-rpm,
+#speedo-container.lite .arc-speed-cap,
+#speedo-container.lite .arc-rpm-cap {
+    filter: none !important;   /* drop the per-arc glow (cheap flat fill instead) */
+}
+
+/* ===== MINIMAL MODE — compact rectangle panel =====================================
+   Hides the SVG rings entirely and reflows the container into a small horizontal card
+   holding: gear + speed (left), a horizontal RPM bar, the fuel/NOS bars, and the
+   status boxes. All existing elements — just restyled/repositioned. No rings = cheap. */
+#speedo-container.minimal {
+    width: 184px;
+    height: auto;
+    bottom: 40px;
+    right: 24px;
+    /* translateZ(0) instead of `none`: keeps the panel on its OWN compositing layer so
+       an inner bar repaint doesn't force the browser to re-blend the translucent panel
+       against the whole game view behind it. contain:paint clips repaints to the panel. */
+    transform: translateZ(0);
+    padding: 7px 10px 9px;
+    background: rgba(0, 0, 0, 0.46);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 9px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    display: block;
+    contain: layout style paint;
+}
+#speedo-container.minimal.visible { transform: translateZ(0); opacity: 1; }
+#speedo-container.minimal.hidden  { transform: translateZ(0); opacity: 0; }
+/* Hide the ring SVG + all ring overlays in minimal. */
+#speedo-container.minimal #gauge-svg,
+#speedo-container.minimal #glow-overlay,
+#speedo-container.minimal #redline-overlay,
+#speedo-container.minimal #mode-overlay,
+#speedo-container.minimal #backlight { display: none !important; }
+
+/* PERF (lite + minimal): kill EVERY infinite pulse/fade/flash animation. These pills
+   (gearbox A/M/E, TC, ABS, seatbelt, NOS, regen-hold) animate `color`/`box-shadow`
+   forever, which repaints each pill 60fps regardless of mode — a hidden always-on paint
+   cost. In the FPS-saver tiers the pills just sit at their base colour (still fully
+   readable, just not breathing). NORMAL + FULL keep the animations (the fancy tier). */
+#speedo-container.lite .indicator,
+#speedo-container.minimal .indicator,
+#speedo-container.lite #nos-bar-container,
+#speedo-container.minimal #nos-bar-container,
+#speedo-container.lite #nos-dots .nos-dot,
+#speedo-container.minimal #nos-dots .nos-dot {
+    animation: none !important;
+}
+
+/* TOP ROW: gear (LEFT) — speed + unit (RIGHT). center-info is a static flex row with
+   space-between; gear sits first (left), speed/unit group pushed to the right. */
+#speedo-container.minimal #center-info {
+    position: static;
+    transform: none;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+}
+#speedo-container.minimal #speed-value {
+    font-size: 22px;
+    font-weight: 800;
+    margin-left: auto;   /* push speed (+unit) to the right */
+}
+#speedo-container.minimal #speed-unit  { font-size: 9px; }
+
+/* Gear on the LEFT. Inline (not absolute), no slide animation in minimal. */
+#speedo-container.minimal #gear-display {
+    position: static;
+    transform: none;
+    width: auto; height: auto; margin: 0;
+    font-size: 24px;
+    overflow: visible;
+    text-shadow: none;
+}
+#speedo-container.minimal #gear-display .gear-num {
+    position: static;
+    animation: none !important;   /* minimal = no slide, just show the number */
+    transform: none !important;
+}
+
+/* Horizontal RPM bar — the main bar in minimal. */
+#mini-rpm { display: none; }
+#speedo-container.minimal #mini-rpm {
+    display: block;
+    position: relative;        /* anchor the EV split fills */
+    height: 7px;
+    margin: 4px 0 5px;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 3.5px;
+    overflow: hidden;
+}
+/* Normal (non-EV): single fill from the left, rpm gradient.
+   PERF: the fill is FULL WIDTH and revealed via transform: scaleX() (JS sets --fill 0..1),
+   NOT by animating `width`. width changes force LAYOUT/REFLOW every frame — that reflow of
+   the translucent panel over the game view was making MINIMAL cost MORE than the rings
+   (which use composite-only stroke-dashoffset). scaleX is composite-only = cheap. */
+#mini-rpm-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 3.5px;
+    background: linear-gradient(90deg, #3399ff 0%, #66dd44 55%, #ffcc22 82%, #ff2a2a 100%);
+    transform: scaleX(var(--fill, 0));
+    transform-origin: left center;
+    transition: transform 0.08s linear;
+    will-change: transform;   /* own compositing layer -> panel behind isn't repainted */
+}
+/* EMODE-BAR (semi-look PHEV on electric) in minimal: the single fill carries THROTTLE,
+   not revs, so make it a flat GREEN (no rev-zone gradient). */
+#speedo-container.emode-bar.minimal #mini-rpm-fill {
+    background: #37d65a;
+}
+/* EV center-split power meter: brake (red) fills LEFT from centre, throttle (green)
+   fills RIGHT from centre. Hidden until .ev; the plain fill is hidden for EVs. */
+/* EV center-split power meter — also used by a HYBRID in E-MODE (.hybrid.emode), so a
+   passenger riding a hybrid on electric sees the same split meter. Hybrid in ICE mode
+   (no .emode) keeps the normal single RPM fill for engine revs. */
+#mini-rpm-brake, #mini-rpm-thr { display: none; }
+#speedo-container.ev.minimal #mini-rpm-fill,
+#speedo-container.hybrid.emode.minimal #mini-rpm-fill { display: none; }
+/* Each half spans the FULL half-width (50% of the bar) and is revealed by scaleX (JS sets
+   --fill 0..1), same composite-only trick as the single fill above — no width reflow. */
+#speedo-container.ev.minimal #mini-rpm-brake,
+#speedo-container.ev.minimal #mini-rpm-thr,
+#speedo-container.hybrid.emode.minimal #mini-rpm-brake,
+#speedo-container.hybrid.emode.minimal #mini-rpm-thr {
+    display: block;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;                /* full half; JS scales it via --fill (0..1) */
+    transition: transform 0.06s linear;
+    will-change: transform;    /* own compositing layer -> panel behind isn't repainted */
+}
+#speedo-container.ev.minimal #mini-rpm-brake,
+#speedo-container.hybrid.emode.minimal #mini-rpm-brake {
+    right: 50%;                /* pinned at centre, grows leftward via scaleX */
+    transform: scaleX(var(--fill, 0));
+    transform-origin: right center;
+    background: linear-gradient(270deg, #37d65a 0%, #2bb849 100%);  /* regen = GREEN */
+    border-radius: 3.5px 0 0 3.5px;
+}
+#speedo-container.ev.minimal #mini-rpm-brake.friction,
+#speedo-container.hybrid.emode.minimal #mini-rpm-brake.friction {
+    background: linear-gradient(270deg, #9aa4ad 0%, #7c858d 100%);  /* friction = GRAY */
+}
+#speedo-container.ev.minimal #mini-rpm-thr,
+#speedo-container.hybrid.emode.minimal #mini-rpm-thr {
+    left: 50%;                 /* pinned at centre, grows rightward via scaleX */
+    transform: scaleX(var(--fill, 0));
+    transform-origin: left center;
+    background: linear-gradient(90deg, #0ab886 0%, #0DE0A8 100%);
+    border-radius: 0 3.5px 3.5px 0;
+}
+/* Faint centre divider tick. */
+#speedo-container.ev.minimal #mini-rpm::after,
+#speedo-container.hybrid.emode.minimal #mini-rpm::after {
+    content: '';
+    position: absolute;
+    top: -1px; bottom: -1px;
+    left: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateX(-0.5px);
+}
+
+/* Bars stack below the RPM bar: FUEL first, then NOS. Plain horizontal rows (the old
+   vertical-rotated fuel bar was fragile and kept breaking — this is a normal bar). */
+#speedo-container.minimal #bars {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+}
+/* FUEL — horizontal bar, below the RPM bar. Icon back in-flow (base rule floats it
+   absolute), sitting left of a full-width track. */
+#speedo-container.minimal #fuel-row {
+    position: static;
+    left: auto; bottom: auto;
+    transform: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+#speedo-container.minimal #fuel-row .bar-icon {
+    position: static;          /* override the absolute base rule */
+    right: auto; margin: 0; top: auto;
+    transform: none;
+    min-width: 0;
+    flex: 0 0 auto;
+}
+#speedo-container.minimal #fuel-row .bar-icon svg { width: 11px; height: 11px; }
+#speedo-container.minimal #fuel-bar-container {
+    flex: 1 1 auto;
+    width: auto;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    transform: none;
+}
+
+/* NOS bar BELOW the fuel bar. */
+#speedo-container.minimal #nos-block {
+    position: static;
+    left: auto; bottom: auto;
+    transform: none;
+    width: 100%;
+    margin-top: 0;
+}
+/* NOS row icon in-flow (match fuel), left of a full-width track. */
+#speedo-container.minimal #nos-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+#speedo-container.minimal #nos-row .bar-icon {
+    position: static;
+    right: auto; margin: 0; top: auto;
+    transform: none;
+    min-width: 0;
+    flex: 0 0 auto;
+}
+#speedo-container.minimal #nos-row .bar-icon svg { width: 11px; height: 11px; }
+/* NOS bar THINNER than the RPM bar (RPM 7px, NOS ~5px) so the RPM reads as primary. */
+#speedo-container.minimal #nos-bar-container {
+    flex: 1 1 auto;
+    height: 5px;
+    border-radius: 2.5px;
+}
+#speedo-container.minimal #nos-dots { position: static; margin: 3px 0 0 16px; }
+
+/* Status boxes flow along the bottom of the panel. */
+#speedo-container.minimal #indicators {
+    position: static;
+    transform: scale(1);
+    bottom: auto; left: auto;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+/* Night-mode LED backlight — a soft ring glow BEHIND the whole gauge. z-index:-1 keeps
+   it under the SVG + all overlays (they sit at the default z-index 0 in the same
+   fixed-position stacking context), so the glow never paints on top of the gauges.
+   Bright band pulled inward (~45%), fading BOTH ways: quick rise inward, long gentle
+   spill all the way out to the container edge. STATIC -> one-off raster. */
+#backlight {
+    position: absolute;
+    inset: -20px;                 /* extend past the container so the fade reaches beyond */
+    z-index: -1;                  /* BEHIND everything in the cluster */
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s ease, background 0.6s ease;
+    /* `closest-side` makes the gradient's 100% land exactly on the CIRCULAR clip edge
+       (border-radius:50%). The default (farthest-corner) put 100% at the box corner,
+       so the visible circle edge fell at ~71% where alpha was still ~0.07 -> hard snap.
+       Alphas are ~20% dimmer than before. */
+    background: radial-gradient(circle closest-side at 50% 50%,
+    /* Peak centred at 60%, held as a THICKER plateau (~58%-62%, ~4px band) so the bright
+       ring is more spread. Fades gently inward and softer outward. */
+                rgba(var(--bl-col, 255,255,255), 0.0)   0%,   /* dark centre */
+                rgba(var(--bl-col, 255,255,255), 0.0)   36%,  /* stay dark through the middle */
+                rgba(var(--bl-col, 255,255,255), 0.10)  48%,  /* glow starts here (inner) */
+                rgba(var(--bl-col, 255,255,255), 0.22)  54%,  /* rising to the band */
+                rgba(var(--bl-col, 255,255,255), 0.336) 58%,  /* PEAK plateau start */
+                rgba(var(--bl-col, 255,255,255), 0.336) 62%,  /* PEAK plateau end (thicker) */
+                rgba(var(--bl-col, 255,255,255), 0.20)  70%,  /* outward fade */
+                rgba(var(--bl-col, 255,255,255), 0.10)  78%,  /* trailing */
+                rgba(var(--bl-col, 255,255,255), 0.045) 86%,  /* very soft */
+                rgba(var(--bl-col, 255,255,255), 0.018) 93%,  /* barely there */
+                rgba(var(--bl-col, 255,255,255), 0.0)   100%);/* fully feathered to nothing */
+}
+#speedo-container.night #backlight { opacity: 0.88; }  /* -12% global brightness */
+
+/* Gear-change / redline FLARE: on a shift or at the limiter the backlight pulses
+   BRIGHTER, in sync with the outer ring glow — harder fade-in, softer fade-out. Only
+   visible when night mode is active (backlight already lit). Driven by JS adding the
+   class; brightness bump via a quick opacity+scale kick. */
+#speedo-container.night #backlight.bl-flare {
+    animation: bl-flare 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes bl-flare {
+    0%   { opacity: 1;    filter: brightness(1); }
+    18%  { opacity: 1;    filter: brightness(2.2); }  /* hard fade-IN to bright */
+    100% { opacity: 1;    filter: brightness(1); }     /* softer fade-OUT back to base */
+}
+
+/* SVG Gauge.
+   PERF: NO `filter` here. A filter on this container forced CEF to re-rasterize the
+   ENTIRE gauge subtree every frame an arc/needle moved — the main cause of the FPS
+   drop while driving. The neon glow now comes from a STATIC blurred underlay
+   (#gauge-glow, drawn once and never animated) instead of a live filter. */
+#gauge-svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    transform: rotate(90deg);
+    overflow: visible;   /* let edge speed labels (e.g. 250) render fully, not clip */
+    /* Promote to its own GPU layer so arc repaints don't dirty the rest of the page. */
+    will-change: transform;
+}
+
+/* Arc tracks (background) */
+.arc-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);   /* was 0.06 — more solid track in daylight */
+    stroke-linecap: round;
+    /* Sweep-in animation: controlled by JS on show */
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.arc-track-outer { stroke-width: 19.6; }
+.arc-track-inner { stroke-width: 10.08; }
+
+/* Active arcs */
+.arc-active {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.05s linear;
+}
+.arc-speed {
+    stroke: url(#speed-gradient);
+    stroke-width: 19.6;
+    /* BUTT cap (not the inherited round): a round cap bulges the fill ~half the
+       stroke-width (~4 deg) PAST its true value, so e.g. 230 read near the 240 mark.
+       Butt ends the fill exactly at its value = accurate + a sharp squared end. */
+    stroke-linecap: butt;
+    /* Glow ON THE FILL (follows the lit portion) — restored. This is a drop-shadow on
+       a SINGLE thin arc, which is cheap. The real FPS killer was the container-wide
+       filter on #gauge-svg (removed), not this. */
+    filter: drop-shadow(0 0 3px rgba(0, 212, 255, 0.55));
+    /* Slightly longer than the base arc-active 0.05s so the JS-smoothed per-frame
+       steps blend into one continuous glide (fill-in / drain-out), no popping.
+       Shorter than before (0.12s) so the speed needle keeps some life/buzz — a
+       speedo is heavier than a tach so it stays a bit smoother than the rpm arc. */
+    transition: stroke-dashoffset 0.06s linear;
+}
+/* Rounded START cap = a solid circle on the arc at the 0 mark, radius = half the
+   bar stroke-width. Reads as a clean rounded end merged with the bar origin; can't
+   detach into a floating blob (the old mini-arc approach did). Speed uses the arc's
+   base (blue) colour. */
+.arc-speed-cap {
+    /* Fill with the SAME gradient as the bar (not a solid #00d4ff). The bar uses a
+       userSpaceOnUse diagonal gradient, so its colour at the arc's start point isn't
+       pure #00d4ff — a solid cap mismatched it (the "different colour" at the start).
+       Sampling the same gradient makes the round cap blend seamlessly into the bar. */
+    fill: url(#speed-gradient);
+    filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4));
+}
+
+/* RPM bar — ONE gradient path revealed by dashoffset (was a 90-segment masked group;
+   SVG masks are very slow in CEF). Butt cap = sharp moving end; round start via cap. */
+.arc-rpm {
+    stroke: url(#rpm-gradient);
+    stroke-width: 10.08;
+    stroke-linecap: butt;
+    /* Glow follows the fill — cheap on a single thin arc. */
+    filter: drop-shadow(0 0 3px rgba(80, 150, 255, 0.5));
+    /* Tiny transition so per-frame flutter isn't smoothed away (was 0.05s = ~3 frames
+       of low-pass, which killed the vibration). ~1 frame just de-jaggies it. */
+    transition: stroke-dashoffset 0.016s linear;
+}
+/* Rounded START cap for the RPM bar — solid circle at 0 rpm. */
+.arc-rpm-cap {
+    filter: drop-shadow(0 0 3px rgba(51, 136, 255, 0.35));
+}
+
+/* ===== GLOW HALOS (NORMAL mode) ===================================================
+   The FPS problem: .arc-speed / .arc-rpm carry a drop-shadow BLUR *and* change their
+   stroke-dashoffset every frame, so CEF re-rasterizes the blur 60x/sec (that was the
+   15-20fps hit). The halos are fatter, translucent TWIN arcs drawn under the fills and
+   driven by the same dashoffset — a wide stroked path is GPU-composited (no blur pass),
+   so the glow still follows the lit tip but costs almost nothing. Hidden by default;
+   shown only under .normal. In .full the halos stay hidden and the live drop-shadow
+   filters below do the glow (max quality, expensive). */
+.arc-speed-halo, .arc-rpm-halo { display: none; }
+/* A filter-free wide stroke can't look like a real blur-glow (it just reads as a fat
+   second bar, and a round cap bulges a blob at the start/end). So the halo is a THIN,
+   faint edge instead: only slightly wider than the bar, low opacity, BUTT caps (no blob).
+   It gives a subtle lit edge that follows the fill, at zero paint cost. Full mode still
+   has the real drop-shadow bloom for those who want it. */
+#speedo-container.normal .arc-speed-halo {
+    display: block;
+    fill: none;
+    stroke: rgba(0, 200, 255, 0.22);
+    stroke-width: 22;              /* just past the 19.6 bar -> faint edge, not a fat bar */
+    stroke-linecap: butt;          /* butt = no round blob at the 0 mark / fill tip */
+    transition: stroke-dashoffset 0.06s linear;
+}
+#speedo-container.normal .arc-rpm-halo {
+    display: block;
+    fill: none;
+    stroke: rgba(90, 150, 255, 0.20);
+    stroke-width: 12;              /* just past the 10.08 bar */
+    stroke-linecap: butt;
+    transition: stroke-dashoffset 0.016s linear;
+}
+/* NORMAL: drop the per-arc blur filters (the halos replace them, GPU-cheap). Also drop
+   the blur on the EV/hybrid split-ring arcs + the hybrid inner RPM ring — those move
+   every frame too, so their per-frame re-rasterized blur is the same cost. The arcs stay
+   fully visible (bright solid strokes), just without the soft bloom in this tier. */
+#speedo-container.normal .arc-speed,
+#speedo-container.normal .arc-rpm,
+#speedo-container.normal .arc-speed-cap,
+#speedo-container.normal .arc-rpm-cap,
+#speedo-container.normal .arc-rpm-ev-thr,
+#speedo-container.normal .arc-rpm-ev-brake,
+#speedo-container.normal .arc-rpm-ev-friction,
+#speedo-container.normal .hy-rpm {
+    filter: none;
+}
+
+/* Tick marks — brighter for daytime visibility. */
+.tick-mark {
+    stroke: rgba(255, 255, 255, 0.62);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+/* Major ticks (the ones with a number) get a stronger line so the scale reads clearly. */
+.tick-mark.tick-major {
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 2.2;
+}
+/* Faint end-of-scale line pointing out to the KMH/MPH caption. */
+.scale-end-line {
+    stroke: rgba(255, 255, 255, 0.22);
+    stroke-width: 1.2;
+    stroke-linecap: butt;
+}
+.tick-label {
+    fill: rgba(255, 255, 255, 0.95);
+    font-size: 8.5px;
+    text-anchor: middle;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    paint-order: stroke;
+    stroke: rgba(0, 0, 0, 0.55);
+    stroke-width: 0.6px;
+}
+/* Unit caption at the end of the speed arc (smaller, dimmer than tick numbers) */
+.unit-label {
+    fill: rgba(255, 255, 255, 0.5);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Shift-light bar (LED dots across the top of the dial) */
+.shift-light {
+    fill: rgba(255, 255, 255, 0.10);
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 0.6;
+    transition: fill 0.05s linear, filter 0.05s linear;
+}
+.shift-light.lit {
+    fill: var(--lit, #33dd55);
+    filter: drop-shadow(0 0 3px var(--lit, #33dd55));
+}
+#shift-lights.strobe .shift-light {
+    fill: #ff2a2a;
+    filter: drop-shadow(0 0 5px #ff2a2a);
+    animation: shift-strobe 0.08s steps(2, jump-none) infinite;
+}
+@keyframes shift-strobe {
+    0%   { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+/* Redline zone */
+.redline-zone {
+    fill: none;
+    stroke: rgba(255, 40, 40, 0.25);
+    stroke-width: 10.08;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.6s;
+}
+
+/* Center info */
+#center-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    pointer-events: none;
+}
+#gear-display {
+    font-size: 63px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(0, 180, 255, 0.5);
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+    position: relative;
+    width: 116px;                  /* wider window so sliding numbers aren't clipped early */
+    height: 66px;
+    margin: 0 auto;
+    overflow: hidden;              /* clip sliding numbers to the gear window */
+}
+/* Each gear number sits centered in the window; animations slide it in/out. */
+.gear-num {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    will-change: transform, opacity;
+}
+/* Upshift: the NEXT gear previews in from the RIGHT — starts small + transparent,
+   then grows and fades to full as it travels to center. Old gear shrinks/fades out
+   to the LEFT. The small start scale keeps the two numbers from crowding the window
+   even mid-travel, so the preview reads as "the next gear arriving". */
+@keyframes gear-in-from-right {
+    0%   { transform: translateX(55%) scale(0.38);  opacity: 0; }
+    35%  { opacity: 0.55; }
+    100% { transform: translateX(0)   scale(1);     opacity: 1; }
+}
+@keyframes gear-out-to-left {
+    0%   { transform: translateX(0)    scale(1);    opacity: 1; }
+    100% { transform: translateX(-55%) scale(0.38); opacity: 0; }
+}
+/* Downshift: mirror — preview in from the LEFT, old gear out to the RIGHT. */
+@keyframes gear-in-from-left {
+    0%   { transform: translateX(-55%) scale(0.38); opacity: 0; }
+    35%  { opacity: 0.55; }
+    100% { transform: translateX(0)    scale(1);    opacity: 1; }
+}
+@keyframes gear-out-to-right {
+    0%   { transform: translateX(0)   scale(1);     opacity: 1; }
+    100% { transform: translateX(55%) scale(0.38);  opacity: 0; }
+}
+.gear-num.in-right  { animation: gear-in-from-right 0.30s cubic-bezier(0.2,0.7,0.3,1) both; }
+.gear-num.out-left  { animation: gear-out-to-left  0.30s cubic-bezier(0.4,0,0.7,0.4) both; }
+.gear-num.in-left   { animation: gear-in-from-left  0.30s cubic-bezier(0.2,0.7,0.3,1) both; }
+.gear-num.out-right { animation: gear-out-to-right 0.30s cubic-bezier(0.4,0,0.7,0.4) both; }
+#gear-display.rev-match {
+    color: #00ff88;
+    text-shadow: 0 0 16px rgba(0, 255, 136, 0.7);
+}
+#gear-display.perfect-shift {
+    color: #ffcc00;
+    text-shadow: 0 0 18px rgba(255, 204, 0, 0.8);
+}
+#gear-display.bad-shift {
+    color: #ff3344;
+    text-shadow: 0 0 18px rgba(255, 51, 68, 0.8);
+}
+
+/* ===== CLUTCH GAUGE (manual only) ===== */
+/* Slim vertical bar sitting left of the center gear/speed. Shows clutch engagement:
+   fill FULL = clutch out (engaged), fill DRAINS as the pedal goes in. */
+#clutch-gauge {
+    position: absolute;
+    top: 50%;
+    /* Inner of the two left-side gauges: turbo sits to its LEFT (outer), clutch to its right. */
+    left: calc(50% - 64px);
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+#clutch-gauge.hidden-clutch { opacity: 0; }
+#clutch-track {
+    width: 5px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+#clutch-fill {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 100%;
+    transform-origin: bottom;
+    transform: scaleY(1);                 /* JS sets scaleY = engagement (0..1) */
+    background: #00c8ff;
+    box-shadow: 0 0 6px rgba(0, 200, 255, 0.5);
+    border-radius: 3px;
+    transition: transform 0.05s linear, background 0.15s ease, box-shadow 0.15s ease;
+}
+/* Feathering (partially engaged) = amber; fully in / mid-shift = red. */
+#clutch-gauge.clutch-partial #clutch-fill {
+    background: #ffb400;
+    box-shadow: 0 0 6px rgba(255, 180, 0, 0.5);
+}
+#clutch-gauge.clutch-in #clutch-fill {
+    background: #ff5544;
+    box-shadow: 0 0 6px rgba(255, 85, 68, 0.5);
+}
+#clutch-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.3);
+}
+/* Minimal / lite layouts have no room for it — never show the clutch gauge there. */
+#speedo-container.minimal #clutch-gauge,
+#speedo-container.lite #clutch-gauge { display: none; }
+
+/* ===== TURBO / BOOST GAUGE (turbo cars only) ===== */
+/* Mirror of the clutch gauge, sitting RIGHT of the center gear/speed. Fill grows UP with boost
+   spool (0..1). Green ramp = boosting; brief white flash on the punch as boost slams online. */
+#turbo-gauge {
+    position: absolute;
+    top: 50%;
+    /* Outer of the two left-side gauges: turbo FIRST (leftmost), clutch just to its right at -64px. */
+    left: calc(50% - 82px);
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+#turbo-gauge.hidden-turbo { opacity: 0; }
+#turbo-track {
+    width: 5px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+#turbo-fill {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 100%;
+    transform-origin: bottom;
+    transform: scaleY(0);                 /* JS sets scaleY = spool (0..1) */
+    background: #00c8ff;
+    box-shadow: 0 0 6px rgba(0, 200, 255, 0.5);
+    border-radius: 3px;
+    transition: transform 0.08s linear, background 0.12s ease, box-shadow 0.12s ease;
+}
+/* On-boost (spool high) shifts toward green. */
+#turbo-gauge.turbo-boosting #turbo-fill {
+    background: #3ddc84;
+    box-shadow: 0 0 7px rgba(61, 220, 132, 0.6);
+}
+/* PUNCH flash — JS toggles this for a frame or two when boost slams online. */
+#turbo-gauge.turbo-hit #turbo-fill {
+    background: #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+}
+#turbo-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.3);
+}
+/* Minimal / lite layouts have no room for it — never show the turbo gauge there. */
+#speedo-container.minimal #turbo-gauge,
+#speedo-container.lite #turbo-gauge { display: none; }
+/* HYBRID (on ICE) has an extra inner RPM ring the turbo gauge would overlap — notch it 8px right
+   (82px→74px) so the BST bar clears the ring. Only when .hybrid is active. */
+#speedo-container.hybrid #turbo-gauge { left: calc(50% - 74px); }
+#gear-display.bad-down {
+    color: #ffcc00;
+    text-shadow: 0 0 16px rgba(255, 204, 0, 0.7);
+}
+#gear-display.rev-limit {
+    animation: flash-red 0.15s ease-in-out infinite alternate;
+}
+@keyframes flash-red {
+    0% { color: #fff; text-shadow: 0 0 12px rgba(0, 180, 255, 0.5); }
+    100% { color: #ff2222; text-shadow: 0 0 18px rgba(255, 34, 34, 0.8); }
+}
+/* EV gear = white text with a GREEN glow (matches how non-EV modes are white + a
+   themed glow). No per-stage colour — the stage colour is on the status pill only. */
+#gear-display.ev-gear { color: #fff; text-shadow: 0 0 13px rgba(55, 214, 90, 0.6); }
+/* Single-gear COMFORT AUTO (mode 0): always 'D', white with a BLUE glow (not the EV
+   green) — reads like an auto's 'D' without implying it's electric. */
+#gear-display.single-gear { color: #fff; text-shadow: 0 0 13px rgba(74, 168, 255, 0.6); }
+/* Subscript digit on the EV regen gear label (D₁/D₂/D₃) — small + LOW on the D. The
+   .gear-num is flex-centred (cancels vertical-align), so push the digit down with a
+   transform. The D stays centred; only the small digit drops toward the base. */
+#gear-display .gear-num sub {
+    font-size: 0.30em;
+    line-height: 1;
+    letter-spacing: 0;
+    margin-left: 1px;
+    display: inline-block;
+    transform: translateY(0.55em);   /* drop it low, near the D's baseline */
+}
+#speed-value {
+    font-size: 27px;
+    font-weight: 700;
+    margin-top: 3px;
+    opacity: 0.9;
+}
+#speed-unit {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.5;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* Indicators row */
+#indicators {
+    position: absolute;
+    bottom: -14px;                              /* 16px lower (was 2px) */
+    left: 50%;
+    transform: translateX(-50%) scale(1.2);     /* 1.2x larger overall */
+    transform-origin: center top;               /* grow downward/outward from the row top */
+    display: flex;
+    gap: 5px;
+}
+.indicator {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+}
+/* Icon pills carry an SVG instead of text — match the text pills' box height. */
+.indicator.icon-pill {
+    padding: 2px 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.indicator.icon-pill svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+    fill: currentColor;
+}
+/* Door lock: show the LOCKED glyph by default, swap to UNLOCKED via .unlocked. */
+#ind-lock .icon-unlocked { display: none; }
+#ind-lock.unlocked .icon-locked { display: none; }
+#ind-lock.unlocked .icon-unlocked { display: block; }
+
+/* Headlights: LOW-beam glyph by default, swap to the HIGH-beam glyph via .highbeam. */
+#ind-lights .icon-high { display: none; }
+#ind-lights.highbeam .icon-low { display: none; }
+#ind-lights.highbeam .icon-high { display: block; }
+/* OFF = dim grey (lights off). */
+.indicator.lights-off {
+    color: #7c858d;
+    background: rgba(124, 133, 141, 0.10);
+    border-color: rgba(124, 133, 141, 0.28);
+}
+/* LOW beam ON = warm white. */
+.indicator.lights-low {
+    color: #eef2f6;
+    background: rgba(238, 242, 246, 0.14);
+    border-color: rgba(238, 242, 246, 0.4);
+    box-shadow: 0 0 6px rgba(238, 242, 246, 0.28);
+}
+/* HIGH beam ON = bright blue (the classic dashboard high-beam blue). */
+.indicator.lights-high {
+    color: #4aa8ff;
+    background: rgba(74, 168, 255, 0.16);
+    border-color: rgba(74, 168, 255, 0.5);
+    box-shadow: 0 0 8px rgba(74, 168, 255, 0.5);
+}
+.indicator.active-nos {
+    color: #00ccff;
+    background: rgba(0, 204, 255, 0.15);
+    border-color: rgba(0, 204, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 204, 255, 0.3);
+}
+.indicator.nos-purge {
+    color: #00ccff;
+    background: rgba(0, 204, 255, 0.08);
+    border-color: rgba(0, 204, 255, 0.25);
+    box-shadow: 0 0 6px rgba(0, 204, 255, 0.15);
+    animation: nos-pulse 0.8s ease-in-out infinite alternate;
+}
+.indicator.nos-danger {
+    color: #ff2222;
+    background: rgba(255, 34, 34, 0.2);
+    border-color: rgba(255, 34, 34, 0.5);
+    box-shadow: 0 0 10px rgba(255, 34, 34, 0.4);
+    animation: nos-danger-flash 0.25s ease-in-out infinite alternate;
+}
+@keyframes nos-pulse {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+@keyframes nos-danger-flash {
+    0% { opacity: 0.6; color: #ff2222; }
+    100% { opacity: 1; color: #ff5555; }
+}
+/* TC/ABS: real dashboards use amber/red warning lamps, not green. TC = yellow,
+   ABS = peach-red, lit while the systems are active. Drift = flash/fade (systems off). */
+.indicator.active-tc {
+    color: #ffcc00;
+    background: rgba(255, 204, 0, 0.12);
+    border-color: rgba(255, 204, 0, 0.35);
+    box-shadow: 0 0 6px rgba(255, 204, 0, 0.2);
+}
+.indicator.active-abs {
+    color: #ff7a5c;
+    background: rgba(255, 122, 92, 0.12);
+    border-color: rgba(255, 122, 92, 0.35);
+    box-shadow: 0 0 6px rgba(255, 122, 92, 0.2);
+}
+/* Assist switched OFF by the driver: the lamp goes DARK/unlit (grey, dimmed) so it's
+   unmistakably different from the lit amber/peach ON state — "the light went off". A
+   faint slow breathe keeps it from looking like a dead/broken pill. */
+.indicator.tc-off,
+.indicator.abs-off {
+    color: #5a5f66;
+    background: rgba(90, 95, 102, 0.10);
+    border-color: rgba(90, 95, 102, 0.30);
+    box-shadow: none;
+    opacity: 0.55;
+    animation: assist-off-breathe 1.4s ease-in-out infinite alternate;
+}
+@keyframes assist-off-breathe {
+    0% { opacity: 0.42; }
+    100% { opacity: 0.62; }
+}
+/* DRIFT-MODE glow-fade (ORIGINAL look — the one that was good): drift auto-disables TC+ABS, but
+   instead of the dark grey manual-off look, the pill glows in its OWN colour (TC amber, ABS peach)
+   and fades opacity in/out. This is the exact original .tc-off/.abs-off styling from before it was
+   repurposed for the manual-toggle dark look — restored here, keyed to drift only. More specific
+   (.indicator.tc-off.drift-ring) than the grey rule, so it wins the colour + glow-fade back. */
+.indicator.tc-off.drift-ring {
+    color: #ffcc00;
+    background: rgba(255, 204, 0, 0.15);
+    border-color: rgba(255, 204, 0, 0.4);
+    box-shadow: 0 0 8px rgba(255, 204, 0, 0.3);
+    animation: tc-fade 0.6s ease-in-out infinite alternate;
+}
+.indicator.abs-off.drift-ring {
+    color: #ff8866;
+    background: rgba(255, 136, 102, 0.12);
+    border-color: rgba(255, 136, 102, 0.4);
+    box-shadow: 0 0 8px rgba(255, 136, 102, 0.3);
+    animation: abs-fade 0.6s ease-in-out infinite alternate;
+}
+@keyframes tc-fade {
+    0% { opacity: 1; }
+    100% { opacity: 0.35; }
+}
+@keyframes abs-fade {
+    0% { opacity: 1; }
+    100% { opacity: 0.35; }
+}
+.indicator.active-handbrake {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.12);
+    border-color: rgba(255, 68, 68, 0.4);
+    box-shadow: 0 0 6px rgba(255, 68, 68, 0.3);
+}
+.indicator.active-launch {
+    color: #00ff88;
+    background: rgba(0, 255, 136, 0.12);
+    border-color: rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+}
+
+/* AUTO-BLINKER pill (LAlt). Shown only while armed; a small green pill that softly pulses
+   (same treatment as the seatbelt/other status pills). No side, no flash. */
+.indicator.blinker-on {
+    color: #00e676;
+    background: rgba(0, 230, 118, 0.10);
+    border-color: rgba(0, 230, 118, 0.4);
+    animation: blinker-pulse 1.3s ease-in-out infinite alternate;
+}
+@keyframes blinker-pulse {
+    0% {
+        border-color: rgba(0, 230, 118, 0.3);
+        box-shadow: 0 0 4px 1px rgba(0, 230, 118, 0.25),
+                    inset 0 0 4px rgba(0, 230, 118, 0.15);
+    }
+    100% {
+        border-color: rgba(0, 230, 118, 0.85);
+        box-shadow: 0 0 12px 3px rgba(0, 230, 118, 0.6),
+                    inset 0 0 6px rgba(0, 230, 118, 0.3);
+    }
+}
+/* Seatbelt off — don't flood the whole pill orange. Keep it near-neutral and slowly
+   pulse an orange glow BEHIND it + on the edge (border + inner/outer shadow). */
+.indicator.seatbelt-off {
+    color: #ffb060;
+    border-color: rgba(255, 136, 0, 0.5);
+    animation: seatbelt-pulse 1.3s ease-in-out infinite alternate;
+}
+/* Seatbelt buckled = solid green (safe/on). */
+.indicator.seatbelt-on {
+    color: #3ad16a;
+    background: rgba(58, 209, 106, 0.12);
+    border-color: rgba(58, 209, 106, 0.4);
+    box-shadow: 0 0 7px rgba(58, 209, 106, 0.3);
+}
+/* Race harness worn = solid red (per request). Takes priority over the belt state. */
+.indicator.harness-on {
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.14);
+    border-color: rgba(255, 77, 77, 0.5);
+    box-shadow: 0 0 8px rgba(255, 77, 77, 0.4);
+}
+@keyframes seatbelt-pulse {
+    0% {
+        border-color: rgba(255, 136, 0, 0.3);
+        box-shadow: 0 0 4px 1px rgba(255, 136, 0, 0.25),
+                    inset 0 0 4px rgba(255, 136, 0, 0.15);
+    }
+    100% {
+        border-color: rgba(255, 136, 0, 0.85);
+        box-shadow: 0 0 12px 3px rgba(255, 136, 0, 0.6),
+                    inset 0 0 6px rgba(255, 136, 0, 0.3);
+    }
+}
+/* Door lock — LOCKED = green (secure), UNLOCKED = amber warning. */
+.indicator.lock-locked {
+    color: #44dd66;
+    background: rgba(68, 221, 102, 0.12);
+    border-color: rgba(68, 221, 102, 0.35);
+    box-shadow: 0 0 6px rgba(68, 221, 102, 0.25);
+}
+.indicator.lock-unlocked {
+    color: #ffaa33;
+    background: rgba(255, 170, 51, 0.12);
+    border-color: rgba(255, 170, 51, 0.35);
+    box-shadow: 0 0 6px rgba(255, 170, 51, 0.25);
+}
+/* Gearbox mode pill (always shown), each continuously pulsing to a LIGHTER shade:
+   A = auto/DCT -> RED (pulses lighter red);  M = manual -> BLUE (pulses lighter blue). */
+.indicator.gearmode-a {
+    color: #4aa8ff;
+    background: rgba(74, 168, 255, 0.12);
+    border-color: rgba(74, 168, 255, 0.35);
+    animation: gearmode-pulse-a 1.4s ease-in-out infinite alternate;
+}
+.indicator.gearmode-m {
+    color: #ff4040;
+    background: rgba(255, 64, 64, 0.12);
+    border-color: rgba(255, 64, 64, 0.35);
+    animation: gearmode-pulse-m 1.4s ease-in-out infinite alternate;
+}
+@keyframes gearmode-pulse-a {
+    0%   { color: #4aa8ff; box-shadow: 0 0 4px rgba(74, 168, 255, 0.25); }
+    100% { color: #a9d4ff; box-shadow: 0 0 10px rgba(140, 200, 255, 0.6); }  /* lighter blue */
+}
+@keyframes gearmode-pulse-m {
+    0%   { color: #ff4040; box-shadow: 0 0 4px rgba(255, 64, 64, 0.25); }
+    100% { color: #ff9a9a; box-shadow: 0 0 10px rgba(255, 120, 120, 0.6); }  /* lighter red */
+}
+/* E = electric -> teal (#0DE0A8), pulses to a lighter teal. */
+.indicator.gearmode-e {
+    color: #0DE0A8;
+    background: rgba(13, 224, 168, 0.12);
+    border-color: rgba(13, 224, 168, 0.35);
+    animation: gearmode-pulse-e 1.4s ease-in-out infinite alternate;
+}
+@keyframes gearmode-pulse-e {
+    0%   { color: #0DE0A8; box-shadow: 0 0 4px rgba(13, 224, 168, 0.25); }
+    100% { color: #7ff2d6; box-shadow: 0 0 10px rgba(90, 240, 200, 0.6); }  /* lighter teal */
+}
+/* Hybrid BOLT (⚡) indicator: GREEN in e-mode, GOLD in ICE mode. Gentle pulse. */
+.indicator.gearmode-bolt-green {
+    color: #0DE0A8;
+    background: rgba(13, 224, 168, 0.12);
+    border-color: rgba(13, 224, 168, 0.35);
+    animation: gearmode-pulse-e 1.4s ease-in-out infinite alternate;
+}
+.indicator.gearmode-bolt-gold {
+    color: #ffcf3a;
+    background: rgba(255, 207, 58, 0.12);
+    border-color: rgba(255, 207, 58, 0.4);
+    animation: gearmode-pulse-gold 1.4s ease-in-out infinite alternate;
+}
+@keyframes gearmode-pulse-gold {
+    0%   { color: #ffcf3a; box-shadow: 0 0 4px rgba(255, 207, 58, 0.25); }
+    100% { color: #ffe89a; box-shadow: 0 0 10px rgba(255, 220, 120, 0.6); }
+}
+/* Drivetrain badge: FWD = green, AWD = blue, RWD = red. Furthest-left pill, before TC. */
+.indicator.drivetrain-fwd {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.40);
+}
+.indicator.drivetrain-awd {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.40);
+}
+.indicator.drivetrain-rwd {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.40);
+}
+/* On a mode CHANGE (e.g. DCT auto<->manual): a bright TWICE-fast flash on TOP of the
+   ongoing colour pulse. Run both animations together (flash + the mode's pulse) so the
+   continuous pulse isn't interrupted. Defined after the base rules so it wins. */
+.indicator.gearmode-flash.gearmode-a {
+    animation: gearmode-flash 0.44s ease-out 1, gearmode-pulse-a 1.4s ease-in-out infinite alternate;
+}
+.indicator.gearmode-flash.gearmode-m {
+    animation: gearmode-flash 0.44s ease-out 1, gearmode-pulse-m 1.4s ease-in-out infinite alternate;
+}
+@keyframes gearmode-flash {
+    0%   { filter: brightness(1); }
+    12%  { filter: brightness(2.2); }
+    25%  { filter: brightness(1); }
+    62%  { filter: brightness(2.2); }
+    75%  { filter: brightness(1); }
+    100% { filter: brightness(1); }
+}
+/* Hide a status pill entirely (JS toggles .hidden). */
+.indicator.hidden { display: none; }
+/* HANDS UP — hard bright red, fast pulse. Only shown while active. */
+.indicator.handsup-on {
+    color: #ff2020;
+    background: rgba(255, 32, 32, 0.18);
+    border-color: rgba(255, 40, 40, 0.6);
+    animation: handsup-pulse 0.4s steps(1, jump-none) infinite;
+}
+@keyframes handsup-pulse {
+    0%, 49%   { color: #ff2020;
+                box-shadow: 0 0 12px 3px rgba(255, 30, 30, 0.9),
+                            inset 0 0 8px rgba(255, 40, 40, 0.5); }
+    50%, 100% { color: rgba(255, 90, 90, 0.55);
+                box-shadow: 0 0 3px 0 rgba(255, 40, 40, 0.25); }
+}
+
+/* Glow overlay — full gauge border glow for events */
+#glow-overlay {
+    position: absolute;
+    top: -4px; left: -4px;
+    right: -4px; bottom: -4px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+/* Gear-change event glows — DAY-VISIBLE. Each ring is 4 layers:
+   1. inset core   — lights the gauge rim from inside
+   2. crisp ring   — high alpha + SPREAD (4th value) = a solid lit band, not a haze
+   3. mid bloom    — the halo
+   4. wide bloom   — big soft spill so it reads bright even against a bright scene
+   The spread radius is what makes these pop in daylight; the old versions had none. */
+#glow-overlay.glow-green {
+    opacity: 1;
+    box-shadow: inset 0 0 40px 2px rgba(40, 255, 130, 0.55),
+                0 0 26px 6px rgba(40, 255, 130, 0.68),
+                0 0 52px 14px rgba(120, 255, 90, 0.43),
+                0 0 96px 30px rgba(120, 255, 90, 0.17);
+    animation: pulse-green 0.72s ease-out forwards;
+}
+#glow-overlay.glow-red {
+    opacity: 1;
+    box-shadow: inset 0 0 40px 2px rgba(255, 45, 45, 0.60),
+                0 0 26px 6px rgba(255, 40, 40, 0.68),
+                0 0 52px 14px rgba(255, 60, 60, 0.44),
+                0 0 100px 32px rgba(255, 40, 40, 0.19);
+    animation: pulse-red 0.72s ease-out forwards;
+}
+#glow-overlay.glow-yellow {
+    opacity: 1;
+    box-shadow: inset 0 0 40px 2px rgba(255, 210, 40, 0.58),
+                0 0 26px 6px rgba(255, 205, 20, 0.68),
+                0 0 52px 14px rgba(255, 190, 30, 0.43),
+                0 0 96px 30px rgba(255, 190, 30, 0.17);
+    animation: pulse-yellow 0.72s ease-out forwards;
+}
+#glow-overlay.glow-nos {
+    opacity: 1;
+    box-shadow: inset 0 0 34px 2px rgba(0, 190, 255, 0.43),
+                0 0 24px 5px rgba(0, 190, 255, 0.55),
+                0 0 60px 18px rgba(0, 190, 255, 0.21);
+}
+#glow-overlay.glow-blue {
+    opacity: 1;
+    box-shadow: inset 0 0 40px 2px rgba(60, 150, 255, 0.55),
+                0 0 26px 6px rgba(70, 160, 255, 0.68),
+                0 0 52px 14px rgba(90, 170, 255, 0.41),
+                0 0 96px 30px rgba(70, 150, 255, 0.17);
+    animation: pulse-blue 0.33s ease-out forwards;
+}
+#glow-overlay.glow-gold {
+    opacity: 1;
+    box-shadow: inset 0 0 46px 3px rgba(255, 205, 50, 0.60),
+                0 0 30px 7px rgba(255, 200, 40, 0.68),
+                0 0 58px 16px rgba(255, 215, 80, 0.44),
+                0 0 104px 34px rgba(255, 200, 50, 0.20);
+    animation: pulse-gold 0.82s ease-out forwards;
+}
+/* Redline limiter glow — dedicated overlay, independent of event glows.
+   Two behaviours on ONE element:
+   1. APPROACH (default): a STEADY red ring whose opacity is driven by the JS var
+      --approach (0..1), fading in as RPM nears the redline. No flicker.
+   2. .active (limiter actually firing): a fast, tight flicker that bounces off the
+      limiter — overrides the steady approach glow. */
+#redline-overlay {
+    position: absolute;
+    top: -4px; left: -4px;
+    right: -4px; bottom: -4px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: var(--approach, 0);
+    box-shadow: inset 0 0 38px 2px rgba(255, 55, 55, 0.6),
+                0 0 26px 6px rgba(255, 45, 45, 0.7),
+                0 0 66px 20px rgba(255, 55, 55, 0.38);
+    transition: opacity 0.12s linear;   /* smooth ramp, snappy enough to track revs */
+}
+#redline-overlay.active {
+    transition: none;                   /* flicker owns opacity while limiting */
+    animation: flicker-redline 0.05s steps(2, jump-none) infinite;
+}
+/* Faster + tighter flicker with less gap between hi/lo (per request): the low state
+   stays brighter (0.7 vs old 0.45) so the "off" frame barely dips = a harder buzz. */
+@keyframes flicker-redline {
+    0%   { opacity: 1;   box-shadow: inset 0 0 40px 2px rgba(255, 60, 60, 0.88),
+                                     0 0 30px 8px rgba(255, 45, 45, 1),
+                                     0 0 82px 24px rgba(255, 55, 55, 0.52); }
+    100% { opacity: 0.7; box-shadow: inset 0 0 30px 1px rgba(255, 70, 70, 0.6),
+                                     0 0 22px 5px rgba(255, 70, 70, 0.6),
+                                     0 0 60px 16px rgba(255, 60, 60, 0.4); }
+}
+
+/* Drive-mode change pulse — a soft inner bloom around the RPM ring on eco<->sport
+   (auto<->manual) switch. Inset ~52px so the ring lands ON the inner (rpm) gauge, not
+   the outer edge. Deliberately LIGHT + SETTLED: low alpha, gentle inset core + small
+   halo (no wide day-bloom like the shift glows), and a slow ease so it swells and
+   fades once. eco = cool blue, sport = warm red, matching the cluster theme. */
+#mode-overlay {
+    position: absolute;
+    /* Inset 62px puts the ring on the RPM gauge's INNER edge (radius ~104px in the
+       330px container), so the bloom sits just inside the rpm ring and spills toward
+       the centre — not on/outside the ring. */
+    top: 62px; left: 62px;
+    right: 62px; bottom: 62px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+}
+#mode-overlay.pulse-eco {
+    animation: mode-pulse-eco 0.9s ease-out forwards;
+}
+#mode-overlay.pulse-sport {
+    animation: mode-pulse-sport 0.9s ease-out forwards;
+}
+/* Bloom weighted INWARD: a stronger inset core (spills toward centre) + only a faint
+   outer halo, so the glow reads as coming off the rpm ring's inner edge inward. */
+@keyframes mode-pulse-eco {
+    0%   { opacity: 0; }
+    30%  { opacity: 1;
+           box-shadow: inset 0 0 30px 5px rgba(70, 160, 255, 0.5),
+                       0 0 10px 1px rgba(70, 160, 255, 0.18); }
+    100% { opacity: 0;
+           box-shadow: inset 0 0 30px 5px rgba(70, 160, 255, 0),
+                       0 0 10px 1px rgba(70, 160, 255, 0); }
+}
+@keyframes mode-pulse-sport {
+    0%   { opacity: 0; }
+    30%  { opacity: 1;
+           box-shadow: inset 0 0 30px 5px rgba(255, 80, 55, 0.5),
+                       0 0 10px 1px rgba(255, 70, 45, 0.18); }
+    100% { opacity: 0;
+           box-shadow: inset 0 0 30px 5px rgba(255, 80, 55, 0),
+                       0 0 10px 1px rgba(255, 70, 45, 0); }
+}
+
+/* ---- Fuel + NOS bars ----
+   The two gauges are concentric arcs with an open gap at the bottom. Each bar sits
+   in its gauge's gap: the FUEL bar spans the wider/lower SPEED-ring gap; the NOS bar
+   (shorter) spans the narrower/higher RPM-ring gap and only shows when NOS is fitted.
+   #bars is just a full-size overlay layer; the rows are positioned individually. */
+#bars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+/* icon + bar on one line. The row width == the BAR width; the icon is taken OUT OF
+   FLOW and hung to the LEFT of the bar (absolute), so the bar alone is what gets
+   centered by the parent — not the icon+bar pair (which pushed the bar off-centre). */
+.bar-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+/* Icon hangs just left of the bar, not affecting the bar's centered position. */
+.bar-row .bar-icon {
+    position: absolute;
+    right: 100%;
+    margin-right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+/* Measured arc-gap geometry (300 viewBox scaled to 330px, SVG rotated 90deg):
+     SPEED ring gap = 202px wide, opening 64px from container bottom
+     RPM   ring gap = 156px wide, opening 87px from container bottom
+   Each bar sits just INSIDE its ring's gap with clearance so the ends never touch
+   the arc, and each is dropped a few px BELOW its gap opening for breathing room. */
+
+/* FUEL row — SPEED-ring gap (202px @ 64px). Pull the width well in (clearance both
+   ends) and sit a touch below the gap so there's space between bar and arc. */
+#fuel-row {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 48px;      /* +2px to line up with the speed gauge's gap edge */
+    width: 126px;      /* narrowed so the left icon clears the speed arc (was 144) */
+}
+/* NOS block — RPM-ring gap (156px @ 87px), above the fuel bar and inside the inner
+   arc. Shorter than fuel to match the narrower gap. Only shown when NOS is fitted.
+   IMPORTANT: the block holds the bar row AND the level dots. We anchor by the BAR,
+   not the block: the dots are taken out of flow (absolute, hanging below the row) so
+   they don't push the bar upward. `bottom` here places the BAR at the target height. */
+#nos-block {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 74px;      /* +2px to line up with the rpm gauge's gap edge */
+    width: 96px;       /* narrowed so the NOS icon clears the rpm arc (was 110) */
+}
+/* Keep the bar row as the block's own height so `bottom` tracks the bar. */
+#nos-row { position: relative; }
+.bar-icon {
+    flex: 0 0 auto;
+    line-height: 0;
+    color: rgba(255, 255, 255, 0.55);
+    min-width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bar-icon svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+}
+/* NOS icon shows the bottle by default; .purging swaps to the spray. */
+#nos-icon .icon-purge { display: none; }
+#nos-icon.purging .icon-nos { display: none; }
+#nos-icon.purging .icon-purge { display: block; }
+/* Bars ~x1.6 thicker (was 4px). */
+.bar-track {
+    flex: 1 1 auto;
+    height: 10.5px;    /* +4px taller */
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 5.25px;
+    overflow: hidden;
+}
+/* NOS held too long — flashing red glow-bloom BEHIND the bar (the bar/icon keep
+   their own colours; only this shadow pulses). box-shadow ignores the track's
+   overflow:hidden, so the bloom spills out around it. */
+#nos-bar-container.overheat {
+    animation: nos-overheat 0.45s ease-in-out infinite alternate;
+}
+@keyframes nos-overheat {
+    0%   { box-shadow: 0 0 6px 1px rgba(255, 40, 40, 0.35); }
+    100% { box-shadow: 0 0 16px 5px rgba(255, 40, 40, 0.9),
+                       0 0 30px 10px rgba(255, 30, 30, 0.5); }
+}
+.bar-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 5.25px;
+    transition: width 0.5s ease;
+}
+#fuel-bar-fill {
+    background: linear-gradient(90deg, #ff4444 0%, #ffaa00 25%, #00dd66 50%, #00dd66 100%);
+    box-shadow: 0 0 4px rgba(0, 220, 100, 0.3);
+}
+/* NOS bar — cyan by default; tinted to the purge colour while purging (JS sets --nos-col). */
+#nos-bar-fill {
+    background: linear-gradient(90deg,
+                rgba(0, 200, 255, 0.5) 0%,
+                var(--nos-col, #00ccff) 100%);
+    box-shadow: 0 0 5px var(--nos-col, rgba(0, 204, 255, 0.4));
+}
+/* NOS block hides entirely when the car has no NOS modifier. */
+#nos-block.hidden-nos { display: none; }
+/* Single NOS icon — swaps text N₂O<->✦ (purge) in JS. Lights cyan while boosting,
+   and takes the purge colour while purging. */
+#nos-icon {
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+#nos-icon.boosting {
+    color: #00ccff;
+    text-shadow: 0 0 6px rgba(0, 204, 255, 0.6);
+}
+#nos-icon.purging {
+    color: var(--nos-col, #00ccff);
+    text-shadow: 0 0 6px var(--nos-col, rgba(0, 204, 255, 0.6));
+}
+/* 3 level dots — taken OUT OF FLOW so they don't push the bar up: absolutely
+   positioned hanging just under the bar row, offset past the icon so they sit under
+   the bar itself. Because they're absolute, #nos-block's `bottom` tracks the BAR. */
+#nos-dots {
+    position: absolute;
+    top: 100%;              /* directly below the bar row */
+    left: 0;                /* bar now starts at the row's left edge (icon is out of flow) */
+    margin-top: 2px;        /* small snug gap under the bar */
+    display: flex;
+    gap: 5px;
+}
+.nos-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.nos-dot.lit {
+    background: #00ccff;
+    box-shadow: 0 0 5px rgba(0, 204, 255, 0.7);
+}
+
+/* Quick eased ramp UP to the brightest point, a brief obvious hold, then a FASTER
+   fade OUT once past peak — asymmetric so the hit lands hard and clears promptly
+   (short fast-shift padding). Peak sits early (~22%); the tail does the rest. */
+@keyframes pulse-green {
+    0%   { opacity: 0; }
+    22%  { opacity: 1; }
+    38%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-red {
+    0%   { opacity: 0; }
+    22%  { opacity: 1; }
+    38%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-yellow {
+    0%   { opacity: 0; }
+    22%  { opacity: 1; }
+    38%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-blue {
+    0%   { opacity: 0; }
+    22%  { opacity: 1; }
+    36%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-gold {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    40%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* (Custom odometer bar CSS removed — jim-mechanic's built-in odometer is used now.) */
+
+/* (Passenger mini box removed — passengers now use the MINIMAL panel layout above.) */

@@ -1,0 +1,10 @@
+/* hk-whysthisdealer — audio-only NUI, nothing visible. */
+html, body {
+	margin: 0;
+	padding: 0;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	background: transparent;
+}
+#wtd-audio-host { display: none; }

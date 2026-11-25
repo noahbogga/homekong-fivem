@@ -1,0 +1,71 @@
+.mines-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 380px;
+  height: 380px;
+}
+
+.mines-tile {
+  background: var(--bg-tile);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.12s;
+}
+
+.mines-tile.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  background: var(--bg-hover);
+}
+
+.mines-tile.clickable:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.mines-tile.gem {
+  background: rgba(0, 200, 255, 0.15);
+  border: 2px solid var(--accent);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.mines-tile.mine,
+.mines-tile.mine-reveal {
+  background: rgba(248, 113, 113, 0.15);
+  border: 2px solid var(--red);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.gem-icon, .bomb-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.mines-profit {
+  background: var(--bg-panel);
+  border-radius: var(--radius);
+  padding: 12px;
+  text-align: center;
+}
+
+.mines-profit-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mines-profit-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--green);
+  margin-top: 4px;
+}

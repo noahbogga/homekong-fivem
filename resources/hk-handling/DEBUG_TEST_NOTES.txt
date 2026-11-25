@@ -1,0 +1,165 @@
+================================================================
+  hk-handling 除錯測試筆記 (DEBUG TEST NOTES)
+  畀返我哋人類睇嘅,唔係畀 AI 睇 lol
+  最後更新:2026-06-11 (晚上,順序波重 tune 之後)
+================================================================
+
+呢份係「我哋而家測緊乜、改咗乜、點解咁改」嘅備忘。
+唔好當 code,當係實驗室白板咁睇。
+
+★★★ 快速狀態 ★★★
+  - .meta:已由另一個 prompt 全部還原返正確值(grip/flags OK)
+  - 跨模式 boost:仲係 BASELINE 中性(關住),做緊乾淨基準測試
+  - 順序波 [6]:已經 tune 好(唔再中性,係刻意 feature)
+  - RPM 模型:已確認(唔再係 TODO),見下面
+  - 新工具:/rpmdebug 螢幕 overlay
+
+
+----------------------------------------------------------------
+【1. RPM 模型 — 已確認(ss69 實測)】★ 最重要嘅基礎知識
+----------------------------------------------------------------
+
+GTA 冇真實 RPM 數值,handling.meta 都冇 redline/idle。
+GetVehicleCurrentRpm 係 0.00–1.00,由「車輪轉速 × 波比」即時計出嚟。
+
+實測鐵一般嘅事實(睇落係所有車通用,唔淨係 ss69):
+  - 怠速地板 = 準確 0.200。RPM 永遠唔會跌穿!
+    就算高波低速好「拖」,raw 都係死死哋 0.200。
+  - 天花板按波數分別:空波 + 1 波到足 1.000;
+    2 波以上喺 ~0.985 (0.983–0.987) 抖(嗰個係我哋自己嘅
+    每波限速器 RevLimiterMinGear=2 喺到 cap,唔係 GTA 限制)。
+  - 解析度 = 0.001(3 個小數位),唔好寫得再幼。
+
+★ RAW 先係真理 — 全部 threshold 都用 raw 嚟比。
+  螢幕 overlay 嘅「REAL REV%」係由 raw 用 (raw-0.2)/0.8 倒推出嚟,
+  所以兩個係綁死嘅。Tune 嘅時候直接睇 raw,REV% / ENGINE RPM 當參考。
+
+  換算公式:raw = 0.20 + 0.80 × realrev%
+            realrev% = (raw - 0.20) / 0.80
+
+  對照:
+    raw 0.200 = 0%      raw 0.600 = 50%
+    raw 0.360 = 20%     raw 0.760 = 70%
+    raw 0.520 = 40%     raw 0.952 = 94%
+
+ss69 參考 .meta:maxFlatVel 200.1 (~264km/h)、4 波、
+  DriveForce 0.25、DriveInertia 1.00(順序波 mult 會變 3.4)、
+  ClutchUpShift 1.30、HandlingFlags 1020000(有手波 bit,正常)。
+
+----------------------------------------------------------------
+【2. RPM 螢幕 OVERLAY — 新工具】
+----------------------------------------------------------------
+
+檔案:client/rpmdebug.lua;指令:/rpmdebug 開關;config:Config.RpmDebug
+  - 螢幕左邊顯示:RAW(0-1)、ENGINE RPM(=RAW×Redline,純參考)、
+    REAL REV%、GEAR、km/h
+  - 自包含:直接讀 native,唔靠主 loop / 手波模式,任何車都顯示
+  - 加新檔案要 restart hk-handling(refresh 唔夠),
+    啟動會 print「[hk-rpmdebug] loaded.」喺 F8
+  - Config.RpmDebug.Redline 純粹係 ENGINE RPM 個數點睇,改佢唔影響任何 tune
+
+
+----------------------------------------------------------------
+【3. 三個地板失效 BUG — 已修(因為地板係 0.200)】
+----------------------------------------------------------------
+
+  問題                舊值       新值      點解
+  --------------------------------------------------------------
+  StallThreshold      0.18    →  0.25     0.18 低過 0.200 地板,拖檔懲罰
+                                          永遠唔觸發。0.25 喺地板之上少少,
+                                          真拖檔(2波+、車郁緊)先 cut 動力。
+  LugBoostMaxRpm      0.22    →  0.30     0.22 只係地板之上 0.02 窄縫(斷崖)。
+                                          0.30 等拖波輔助由地板平滑淡出。
+  ratio learner gate  rpm>.15 →  rpm>.22  地板 0.200,舊 0.15 擋唔到;拖檔幀
+  (gearbox.lua:164)                       (rpm釘0.20、車郁)會通過、學到垃圾
+                                          波比,污染 rev-match + 限速表。
+
+  注意:LugBoostMaxRpm 0.30 而家未感受到,因為 LugBoost 本身仲係
+        BASELINE 中性 1.0(=冇輔助力)。還原 LugBoost 1.18 先生效。
+        Stall(問題1)同 learner(問題3)唔受 baseline 影響,即時生效。
+
+
+----------------------------------------------------------------
+【4. 順序波 [6] 升波 — 已重 tune(刻意 feature,唔係 baseline)】
+----------------------------------------------------------------
+
+  全部用 realrev% 講,raw 換算 = 0.20 + 0.80 × realrev%:
+
+  區間            realrev%    raw 值        config key
+  --------------------------------------------------------------
+  BOUNCE 超過      94%         0.952        UpEngageHi
+  PERFECT          88–92%      0.904–0.936  UpPerfectLo / UpPerfectHi
+  RPM push 區      87–92%      0.896–0.936  UpPushThreshold / UpPushTarget
+  push 速度        —           rate 7.0     UpPushRate(舊 4.0,快咗)
+  PERFECT 獎勵     —           x1.8 扭力    UpshiftBonus(舊 baseline 1.0)
+
+  ★ PERFECT 獎勵 = 扭力 x1.8,持續 700ms → 下個波衝得勁快。
+    (留意:係 torque boost,唔係 rpm boost。GTA 寫高 rpm 冇用,
+     rpm=車輪轉速×波比,硬寫會即刻衰減。torque 先真係令下個波快。)
+
+  ★★ metaScale 已關 + baseline 已修 ★★ — 呢個係之前「92% 都 BOUNCE」嘅元兇:
+    - MetaScaleStrength = 0.0(關咗,本來 0.15)
+    - MetaClutchBaseline = 1.5(修正,本來 2.5 太高)
+    原本 baseline 2.5 太高,搞到差唔多所有車(ss69 離合率 1.30)都被
+    metaScale 拉到 -7% 地板,將 BOUNCE 線由 94% 偷偷拉低到 ~86%,
+    所以 92% 就中彈。而家 strength=0 → 所有車用返你設嘅絕對值,1:1 準。
+    日後想開返「按車種微調」:baseline 1.5 已啱,將 strength 設 0.15 即可。
+
+  其餘順序波 feature(冇郁):
+    UpEngageLo 0.78(SLUG 界);UpSlugPenalty 0.87;
+    DriveInertiaMult 3.4 / Min 2.8(順序波快轉 ramp,2.8→3.4 範圍);
+    DownRevMatchWindow 0.08;DownSynchroWindow 0.30。
+
+
+----------------------------------------------------------------
+【5. 跨模式 BOOST — 仲係 BASELINE 中性(測完要還原)】
+----------------------------------------------------------------
+
+問題:調校師話「全部車、全部模式都覺得快咗」。
+關鍵事實:唯一落動力嘅位 = main.lua:172 vl_setTorque,
+  而 HK.torqueMult 每幀 reset 1.0 → 巡航 = 原廠,除非 boost>1.0 或改 handling。
+
+→ 後續 .meta audit 證實真兇:carpack 嘅 handling.meta 入面
+  fTractionCurveMin 被人改低咗(105 架車),唔關呢個 script 事。
+  .meta 而家已還原。所以呢啲 boost 其實可以還原,但留住中性
+  方便做最乾淨基準。以下仲係關住:
+
+  值                     原本    而家(中性)
+  --------------------------------------------
+  Config.Payload.Enabled true    false
+  ShiftClutchBoost       1.1     1.0
+  RevMatchBonus          1.30    1.0
+  LugBoost               1.18    1.0
+
+  測完想還原手感,改返上面「原本」嗰欄即可。
+  (注意:seq UpshiftBonus / DriveInertiaMult 已經唔喺呢張表 —
+   佢哋已經喺第4段重新 tune 開咗,唔再係 baseline。)
+
+
+----------------------------------------------------------------
+【6. 懸掛感覺問題】已查證 — 結論:唔係呢個 script
+----------------------------------------------------------------
+
+逐個模組查過,而家自動跑又 enabled 嘅模組冇一個喺「未㩒掣、
+平靜駕駛」狀態改懸掛:
+  - 懸掛欄位(fSuspensionForce/ReboundDamp)只喺 DriftMode_Enable 改,要㩒掣
+  - Downforce(改重力影響站姿)Enabled=false
+  - handling.meta 完全冇被寫過(只 SetVehicleHandlingFloat 改記憶體值,
+    落車/退模式/reload 自動還原)
+最可能:SET_DRIFT_TYRES 殘留(㩒過 drift 冇清乾淨),或者唔關呢個 script。
+測試:確保完全冇㩒 drift,落車重新上車再感受。
+
+
+----------------------------------------------------------------
+【驗證方法備忘】
+----------------------------------------------------------------
+
+  改完 config parse 檢查(喺 hk-handling 資料夾):
+    luac -p config.lua && luac -p client/gearbox.lua
+
+  螢幕睇 RPM:/rpmdebug(加新檔案要 restart hk-handling)
+  F8 console print:Config.Gearbox.Debug = true(已開)
+
+================================================================
+  EOF — 有新發現就更新呢份,唔好淨係記喺腦
+================================================================

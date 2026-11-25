@@ -1,0 +1,130 @@
+Locales = {}
+
+Locales['en'] = {
+    -- General
+    no_permission        = 'You are not authorized to do that.',
+    -- User track picker (/racemenu)
+    laptop_title         = 'Street Races',
+    laptop_subtitle      = 'Select a track to host',
+    laptop_no_tracks     = 'No tracks available.',
+    laptop_start         = 'Host Race',
+    -- Editor
+    editor_title         = 'Race Editor',
+    editor_toggle_noclip = 'Toggle Noclip',
+    editor_set_start     = 'Set Start Point (here)',
+    editor_start_radius  = 'Start Radius',
+    editor_add_cp        = 'Add Checkpoint (here)',
+    editor_del_last_cp   = 'Delete Last Checkpoint',
+    editor_del_cp        = 'Delete Checkpoint',
+    editor_cp_radius     = 'Checkpoint Radius',
+    editor_rewards       = 'Rewards',
+    editor_currency      = 'Currency',
+    editor_reward_pos    = 'Position %d Payout',
+    editor_min_players   = 'Minimum Players',
+    editor_track_name    = 'Track Name',
+    editor_list_laptop   = 'Show in /racemenu',
+    editor_save          = 'Save Track',
+    editor_test          = 'Test Drive',
+    editor_exit          = 'Exit Editor',
+    editor_saved         = 'Track saved.',
+    editor_need_start    = 'Set a start point first.',
+    editor_need_cp       = 'Add at least one checkpoint.',
+    -- Race runtime
+    race_hosting         = 'You are hosting. Head to the start zone. Type /startrace to begin now.',
+    race_zone_open       = 'Start zone reached — other racers can now see it. /startrace to begin.',
+    race_nearby          = '%s is forming nearby — drive to the red zone to join.',
+    race_joined          = 'You joined the race.',
+    race_left            = 'You left the race.',
+    race_waiting         = 'Waiting for racers... (%d in zone)',
+    race_waiting_min     = 'In the zone: %d / %d needed to start.',
+    race_need_players    = 'Need %d players in the circle to start.',
+    race_start_need_zone = 'Get inside the start circle to /startrace.',
+    race_grace           = 'Enough racers! Starting in %d s...',
+    race_timeout         = 'Race cancelled — not enough players joined in time.',
+    race_solo_ready      = 'Solo start available in %d s if no one joins.',
+    race_countdown       = 'Race starts in %d...',
+    race_go              = 'GO!',
+    race_next_cp         = 'Checkpoint %d / %d',
+    race_lap             = 'Lap %d / %d',
+    race_new_record      = 'New record! %s — %s',
+    race_ghost_on        = 'Ghost mode: no collisions for %ds.',
+    race_ghost_off       = 'Ghost mode ended — contact enabled.',
+    race_ghost_full      = 'Ghost mode: no collisions this whole race.',
+    race_slip_cool       = 'Slipstream cooling down...',
+    race_finished_win    = 'You WON! Payout: %s',
+    race_finished_pos    = 'Finished #%d. Payout: %s',
+    race_finished_none   = 'Finished #%d. No payout.',
+    -- Time Attack (solo run)
+    race_ta_on           = 'TIME ATTACK — beat your class record to win the full prize.',
+    race_ta_record       = 'NEW CLASS RECORD! Full payout: %s',
+    race_ta_no_record    = 'Finished. No new class record — no payout. Best to beat: %s',
+    race_ta_no_record_nb = 'Finished. Set the first class record here — try again to bank the prize.',
+    -- Head-to-Head (horn-twice street challenge)
+    h2h_bet_set          = 'H2H stake set to %s. Horn twice near a driver to challenge.',
+    h2h_bet_off          = 'H2H stake cleared — next challenge is for bragging rights.',
+    h2h_bet_bad          = 'Invalid stake amount.',
+    h2h_pick_finish      = 'CHALLENGE ARMED vs %s — pick finish: [1] Dash ahead (%dm)  [2] Nearest line (%s)',
+    h2h_pick_finish_nofl = 'CHALLENGE ARMED vs %s — [1] Dash ahead (%dm)  (no finish line nearby)',
+    h2h_pick_timeout     = 'Challenge cancelled — no finish picked in time.',
+    h2h_no_target        = 'No driver in range to challenge.',
+    h2h_need_vehicle     = 'You must be driving to start a head-to-head.',
+    h2h_busy             = 'You\'re already in a race.',
+    h2h_target_busy      = 'That driver is busy.',
+    h2h_cooldown         = 'Challenge cooling down — wait %ds.',
+    h2h_sent             = 'Challenge sent to %s. Waiting for them to accept...',
+    h2h_incoming         = '%s challenges you to a race! Stake: %s  [Y] Accept  [N] Decline',
+    h2h_incoming_free    = '%s challenges you to a race (bragging rights)!  [Y] Accept  [N] Decline',
+    h2h_declined         = '%s declined your challenge.',
+    h2h_you_declined     = 'Challenge declined.',
+    h2h_expired          = 'Challenge expired.',
+    h2h_cant_afford_host = 'You can\'t cover the %s stake.',
+    h2h_cant_afford_you  = 'You can\'t cover the %s stake.',
+    h2h_staked           = 'Stake of %s placed. Race on!',
+    h2h_go               = 'GO! First to the finish wins!',
+    h2h_countdown        = 'Race starts in %d...',
+    h2h_win              = 'You WON the head-to-head! %s',
+    h2h_win_free         = 'You WON the head-to-head!',
+    h2h_lose             = 'You lost the head-to-head. %s',
+    h2h_lose_free        = 'You lost the head-to-head.',
+    h2h_refund           = 'Race voided — stake of %s refunded.',
+    h2h_opp_left         = 'Your opponent bailed — race voided.',
+    race_reduced_payout  = 'Low turnout (under 4 racers) — payout halved.',
+    race_reduced_slot    = 'Low turnout — halved and only the #%d prize (less competition).',
+    race_lap_payout      = 'Payout stacked over %d laps.',
+    race_police_bonus    = 'Police heat bonus: +%s (%d cops on duty)!',
+    racehide_on          = 'Race name hidden — you\'ll show as "Hidden" on leaderboards.',
+    racehide_off         = 'Race name visible — your /nick name will show on leaderboards.',
+    race_dnf             = 'You did not finish.',
+    race_quit            = 'You quit the race.',
+    race_get_in_car      = 'Get back in a vehicle! (%ds or you leave the race)',
+    race_left_onfoot     = 'Removed from race — you were out of a vehicle too long.',
+    -- Announcement (non-emergency)
+    announce_started     = 'Illegal street race reported near %s.',
+    -- Admin panel
+    admin_title          = 'Race Administration',
+    admin_tracks         = 'Tracks',
+    admin_new_track      = 'Create Track',
+    admin_edit           = 'Edit',
+    admin_delete         = 'Delete',
+    admin_place_laptop   = 'Place Laptop Here',
+    admin_laptops        = 'Laptops',
+    admin_remove_laptop  = 'Remove',
+}
+
+-- Traditional Chinese (matches [sky] suite locale style). Fill as needed.
+Locales['zh'] = setmetatable({
+    no_permission   = '你沒有權限這樣做。',
+    laptop_title    = '街頭賽車終端機',
+    laptop_subtitle = '選擇一條賽道開始',
+    race_go         = '開始！',
+    race_quit       = '你已退出比賽。',
+}, { __index = Locales['en'] })  -- fall back to English for unset keys
+
+function L(key, ...)
+    local tbl = Locales[RaceConfig.Locale] or Locales['en']
+    local str = tbl[key] or Locales['en'][key] or key
+    if select('#', ...) > 0 then
+        return string.format(str, ...)
+    end
+    return str
+end

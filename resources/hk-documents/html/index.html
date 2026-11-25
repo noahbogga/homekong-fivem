@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Documents</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ===== Main panel ===== -->
+    <div id="panel" class="hidden">
+        <div class="doc-window">
+            <div class="doc-header">
+                <div class="dh-titles">
+                    <h2 id="dh-title">文件</h2>
+                    <p id="dh-sub" class="dh-sub"></p>
+                </div>
+                <div class="dh-tabs">
+                    <button class="tab active" data-tab="mine">我的文件</button>
+                    <button class="tab" data-tab="issue">簽發</button>
+                    <button class="tab" data-tab="templates" id="tab-templates">範本</button>
+                </div>
+                <button id="btn-close" class="btn-icon" title="關閉">&times;</button>
+            </div>
+
+            <div class="doc-body">
+                <!-- list column -->
+                <div id="list-col" class="list-col"></div>
+                <!-- detail / editor column -->
+                <div id="work-col" class="work-col">
+                    <p class="empty-hint">請在左方選擇項目</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Fullscreen received-document overlay ===== -->
+    <div id="view-overlay" class="hidden">
+        <div id="view-stage"></div>
+        <button id="view-close" class="btn-icon view-close">&times;</button>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

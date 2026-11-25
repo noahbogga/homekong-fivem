@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Sell</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="dialog-container" class="hidden">
+        <div class="dialog-box">
+            <!-- scanline / grain overlay for the gritty street feel -->
+            <div class="box-grain"></div>
+
+            <!-- ===== Header ===== -->
+            <div class="dialog-header">
+                <div class="npc-avatar">
+                    <div class="avatar-ring"></div>
+                    <i class="fa-solid fa-user-secret"></i>
+                </div>
+                <div class="npc-info">
+                    <span class="npc-label">未知 · STRANGER</span>
+                    <p id="npc-greeting" class="npc-text"></p>
+                </div>
+                <button id="close-btn" class="close-btn" title="Close (ESC)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- ===== Drug selection ===== -->
+            <div id="drug-selection" class="dialog-section">
+                <div class="section-divider">
+                    <span class="divider-text">Show what you got</span>
+                </div>
+                <div id="drug-list" class="drug-grid"></div>
+            </div>
+
+            <!-- ===== Price negotiation ===== -->
+            <div id="price-section" class="dialog-section hidden">
+                <div class="deal-card">
+                    <div class="deal-header">
+                        <div class="deal-drug">
+                            <i id="deal-icon" class="fa-solid fa-leaf"></i>
+                            <span id="selected-drug-name"></span>
+                        </div>
+                        <div class="deal-qty">
+                            <span id="qty-value">x1</span>
+                        </div>
+                    </div>
+                    <span id="selected-drug-count" class="deal-inventory"></span>
+                </div>
+
+                <div class="price-negotiation">
+                    <div class="price-label-row">
+                        <span class="price-label">Name your price</span>
+                        <span class="price-per">per unit</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="price-slider" min="0" max="100" value="50">
+                        <div class="slider-markers">
+                            <span id="price-min" class="marker-low"></span>
+                            <span id="price-max" class="marker-high"></span>
+                        </div>
+                    </div>
+                    <div class="price-display">
+                        <span class="price-currency">$</span><span id="price-value">0</span>
+                    </div>
+                </div>
+
+                <button id="sell-btn" class="action-btn">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>Make the deal</span>
+                </button>
+            </div>
+
+            <!-- ===== NPC Reaction ===== -->
+            <div id="reaction-section" class="dialog-section hidden">
+                <div class="npc-reaction">
+                    <div class="reaction-icon" id="reaction-icon"></div>
+                    <p id="reaction-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

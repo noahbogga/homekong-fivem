@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: rgba(12, 12, 18, 0.92);
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --cyan: #00c8ff;
+    --cyan-dim: rgba(0, 200, 255, 0.15);
+    --red: #ff4060;
+    --green: #00e070;
+    --radius: 8px;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: none;
+}
+
+.hidden { display: none !important; }
+
+/* ── Editor (full viewport, transparent) ── */
+.editor {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+}
+
+/* ── Paint surface (captures mouse for 3D painting) ── */
+.paint-surface {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    cursor: none;
+}
+
+/* ── Brush cursor ── */
+.brush-cursor {
+    position: fixed;
+    pointer-events: none;
+    border: 2px solid var(--cyan);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    opacity: 0.8;
+    transition: width 0.08s, height 0.08s;
+}
+
+/* ── Floating toolbar ── */
+.toolbar {
+    position: fixed;
+    top: 40px;
+    left: 40px;
+    width: 180px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.toolbar-handle {
+    padding: 10px 14px;
+    cursor: grab;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+}
+.toolbar-handle:active { cursor: grabbing; }
+
+.toolbar-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--cyan);
+}
+
+/* ── Tool buttons ── */
+.tool-row {
+    display: flex;
+    gap: 4px;
+    padding: 10px 12px 6px;
+}
+
+.tool-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.tool-btn svg { width: 18px; height: 18px; }
+.tool-btn:hover { background: var(--surface2); color: var(--text); }
+.tool-btn.active {
+    background: var(--cyan-dim);
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+/* ── Tool sections ── */
+.tool-section {
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tool-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+}
+
+/* ── Color ── */
+.color-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-row input[type="color"] {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+    padding: 2px;
+    flex-shrink: 0;
+}
+.color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+.color-hex {
+    flex: 1;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 5px 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    outline: none;
+}
+.color-hex:focus { border-color: var(--cyan); }
+
+.color-presets {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+}
+
+.color-swatch {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+.color-swatch:hover { border-color: var(--text-dim); }
+.color-swatch.active { border-color: var(--cyan); }
+
+/* ── Size slider ── */
+input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    cursor: pointer;
+}
+
+/* ── Action row ── */
+.action-row {
+    display: flex;
+    gap: 4px;
+    padding: 6px 12px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+}
+.action-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
+.action-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ── Save row ── */
+.save-row {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px 12px;
+}
+
+.btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-primary {
+    flex: 1;
+    background: var(--cyan);
+    color: #000;
+}
+.btn-primary:hover { background: #33d4ff; }
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 16px;
+    padding: 6px 10px;
+}
+.btn-ghost:hover { color: var(--red); }
+
+/* ── Toast ── */
+.toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 24px;
+    background: var(--bg);
+    border: 1px solid var(--cyan);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cyan);
+    z-index: 300;
+    backdrop-filter: blur(8px);
+}
+
+/* ── Controls hint ── */
+.controls-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    z-index: 10;
+    line-height: 1.6;
+    backdrop-filter: blur(8px);
+}
+.controls-hint kbd {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--cyan);
+}

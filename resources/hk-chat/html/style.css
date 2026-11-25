@@ -1,0 +1,608 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
+
+:root {
+    --accent: #00c8ff;
+    --accent-2: #1e90ff;
+    --accent-soft: rgba(0, 200, 255, 0.13);
+    --accent-line: rgba(0, 200, 255, 0.38);
+
+    --bg: #070d12;
+    --card: #0d1116;
+    --elevated: #141b23;
+    --surface: #1a222c;
+    --border: #2b303d;
+    --border-soft: rgba(255, 255, 255, 0.06);
+
+    --fg: #e9eef3;
+    --fg-muted: #94a3b8;
+    --fg-dim: #64748b;
+
+    --green: #34d399;
+    --red: #f87171;
+    --gold: #fbbf24;
+    --purple: #c084fc;
+
+    --radius: 14px;
+    --radius-sm: 10px;
+    --font: "Inter", "Noto Sans TC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    color: var(--fg);
+    font-family: var(--font);
+    overflow: hidden;
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 50px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
+::-webkit-scrollbar-track { background: transparent; }
+
+kbd {
+    font-family: var(--mono);
+    font-size: 8px;
+    line-height: 1.4;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--fg-dim);
+}
+
+/* ─── Dock (top-LEFT) ──────────────────────────────────────────── */
+.chat {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    width: 440px;
+    max-width: 40vw;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 50;
+}
+
+/* Screen faded / pause menu → fully hidden. */
+.chat.screen-hidden { opacity: 0 !important; pointer-events: none; }
+
+/* IDLE: no focus. Tabs/input hidden, stream shows recent lines then fades. */
+.chat.idle .tabs,
+.chat.idle .input-row,
+.chat.idle .palette { display: none !important; }
+
+.chat.idle .stream {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    max-height: 260px;
+    padding: 0;
+    pointer-events: none;
+    overflow: hidden;   /* no scrollbar in the idle preview */
+}
+
+/* Idle stream auto-fades once inactive. */
+.chat.idle.faded .stream { opacity: 0; transition: opacity 600ms ease; }
+.chat.idle .stream { transition: opacity 200ms ease; opacity: 1; }
+
+/* OPEN: focused panel. */
+.chat.open {
+    width: 480px;
+    max-width: 46vw;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────── */
+.tabs {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: rgba(13, 17, 22, 0.92);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: rise 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 140ms ease;
+}
+.tab-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--fg-dim);
+    font-family: var(--mono);
+}
+.tab-zh { font-size: 9px; color: var(--fg-dim); }
+
+.tab:hover { background: rgba(255, 255, 255, 0.04); }
+.tab.active {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+}
+.tab.active .tab-label,
+.tab.active .tab-zh { color: var(--tab-color, var(--accent)); }
+
+/* Unread dot */
+.tab .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--tab-color, var(--accent));
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity 140ms ease;
+}
+.tab.unread .dot { opacity: 1; }
+
+/* ─── Job roster header ─────────────────────────────────────────── */
+.roster {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    background: rgba(13, 17, 22, 0.92);
+    border: 1px solid var(--green);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: rise 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.roster-title {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--green);
+}
+.roster-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.rchip {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: rgba(52, 211, 153, 0.10);
+    border: 1px solid rgba(52, 211, 153, 0.30);
+    color: var(--fg);
+}
+.rchip.me { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent); }
+.rchip.empty { background: transparent; border-color: var(--border); color: var(--fg-dim); }
+
+/* ─── Stream ────────────────────────────────────────────────────── */
+.stream {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 42vh;
+    overflow-y: auto;
+    /* Vertical padding must exceed the border-radius, or pills on the first/last
+       line get their rounded corner clipped by the container's corner arc. */
+    padding: 14px 14px;
+    background: rgba(7, 13, 18, 0.90);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--border-soft) inset;
+    /* scroll position is set in JS (instant on open, no animated top→bottom
+       sweep on a long backlog). No CSS smooth-scroll here on purpose. */
+}
+.chat.open .stream {
+    background:
+        radial-gradient(120% 80% at 100% 0%, rgba(0, 200, 255, 0.06), transparent 55%),
+        rgba(7, 13, 18, 0.94);
+}
+
+/* One message line */
+.msg {
+    font-size: 13px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: msgIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.msg .id {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 5px;
+    padding: 0 4px;
+    margin-right: 5px;
+}
+.msg .name { font-weight: 700; margin-right: 4px; }
+.msg .body { color: var(--fg); }
+.msg.system { color: var(--fg-muted); font-style: italic; }
+.msg.system .body { color: var(--fg-muted); }
+.msg.me { color: var(--fg-muted); font-style: italic; }
+.msg.me .name { color: var(--fg); font-style: normal; }
+
+/* Channel tag pill (SYSTEM / EMERGENCY / ANNOUNCE) */
+.msg .tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 1px 5px;
+    border-radius: 5px;
+    margin-right: 5px;
+    text-transform: uppercase;
+}
+
+/* Whisper direction marker */
+.msg .wdir {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--purple);
+    margin-right: 4px;
+}
+
+/* ─── Input row ─────────────────────────────────────────────────── */
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(13, 17, 22, 0.96);
+    border: 1px solid var(--accent-line);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    animation: rise 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 120ms ease, border-color 120ms ease;
+}
+/* Cooldown: greyed out, non-interactive, dimmed border. */
+.input-row.cooldown {
+    opacity: 0.5;
+    border-color: var(--border);
+    pointer-events: none;
+}
+/* Rejection pulse (e.g. typing plain text into a read-only channel). */
+.input-row.reject {
+    animation: rejectPulse 0.4s ease;
+}
+@keyframes rejectPulse {
+    0%, 100% { border-color: var(--accent-line); }
+    30%      { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; }
+}
+.input-row.cooldown .input-tab {
+    color: var(--fg-dim);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border);
+}
+.input-row.cooldown .input { color: var(--fg-dim); }
+/* Self server-ID pill — leftmost, so players never need /id. Neutral/mono so
+   it reads as an identity chip, distinct from the cyan channel pill. */
+.self-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.input-tab {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 6px;
+    padding: 3px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.input-wrap { position: relative; flex: 1; }
+.input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 13px;
+    caret-color: var(--accent);
+    position: relative;
+    z-index: 2;
+}
+.input::placeholder { color: var(--fg-dim); }
+/* Live command preview text sits under the caret line */
+.preview {
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--fg-dim);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1;
+}
+.input-hint { display: flex; gap: 2px; white-space: nowrap; flex-shrink: 0; }
+
+/* ─── Command palette popup ─────────────────────────────────────── */
+.palette {
+    display: flex;
+    flex-direction: column;
+    max-height: 240px;
+    overflow-y: auto;
+    background: rgba(13, 17, 22, 0.97);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-soft) inset;
+    padding: 6px;
+    animation: rise 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.palette-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--fg-dim);
+    padding: 2px 6px 6px;
+    text-transform: uppercase;
+}
+.palette-head .slash {
+    color: var(--accent);
+    font-weight: 700;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 5px;
+    padding: 0 5px;
+}
+.cmd {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 120ms ease;
+}
+.cmd:hover { background: rgba(255, 255, 255, 0.04); }
+.cmd.sel {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+}
+.cmd-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+}
+.cmd-params { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); }
+.cmd-help {
+    font-size: 11px;
+    color: var(--fg-muted);
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 45%;
+}
+.cmd-empty { padding: 10px; text-align: center; color: var(--fg-dim); font-size: 12px; }
+
+/* ─── keyframes ─────────────────────────────────────────────────── */
+@keyframes msgIn {
+    from { transform: translateX(-10px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes rise {
+    from { transform: translateY(8px); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Timestamp prefix on each line */
+.msg .ts {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--fg-dim);
+    margin-right: 5px;
+    opacity: 0.75;
+}
+/* History (replayed) lines are slightly dimmed. */
+.msg.history { opacity: 0.7; }
+
+/* ─── Admin settings panel (keyboard-navigable) ─────────────────── */
+.admin-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 6, 10, 0.55);   /* plain dim, no blur */
+    animation: fadeIn 140ms ease-out;
+}
+.admin {
+    width: min(680px, 90vw);
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        radial-gradient(120% 90% at 50% -10%, rgba(0, 200, 255, 0.10), transparent 60%),
+        var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-soft) inset;
+    overflow: hidden;
+    animation: rise 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-head {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border-soft);
+}
+.admin-title { font-size: 18px; font-weight: 800; letter-spacing: 0.02em; }
+.admin-title .accent { color: var(--accent); }
+.admin-sub {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--fg-dim);
+}
+.admin-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 18px 8px;
+    padding: 8px 12px;
+    background: #020817;
+    border: 1px solid var(--accent-line);
+    border-radius: var(--radius-sm);
+}
+.af-slash {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 5px;
+    padding: 0 6px;
+}
+.af-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-family: var(--font);
+    font-size: 13px;
+    caret-color: var(--accent);
+}
+.admin-cols {
+    display: grid;
+    gap: 8px;
+    padding: 6px 22px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--fg-dim);
+}
+.admin-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 12px 12px;
+}
+.acmd {
+    display: grid;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+/* Per-section column layouts */
+.cols-cmd { grid-template-columns: 1fr 120px 120px; }
+.cols-ply { grid-template-columns: 1fr 100px; }
+.cols-msg { grid-template-columns: 1fr 90px; }
+.ply-nick { color: var(--accent); font-weight: 500; }
+.acmd.sel {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+}
+.acmd-name { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--fg); }
+.acmd.sel .acmd-name { color: var(--accent); }
+.tgl {
+    justify-self: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: var(--fg-dim);
+    background: rgba(255, 255, 255, 0.03);
+    min-width: 54px;
+    text-align: center;
+}
+.tgl.on {
+    color: var(--gold);
+    border-color: var(--gold);
+    background: rgba(251, 191, 36, 0.12);
+}
+.tgl.on.block { color: var(--red); border-color: var(--red); background: rgba(248, 113, 113, 0.12); }
+.admin-foot {
+    display: flex;
+    gap: 16px;
+    padding: 12px 22px;
+    border-top: 1px solid var(--border-soft);
+    font-size: 11px;
+    color: var(--fg-dim);
+}
+.admin-foot span { display: flex; align-items: center; gap: 4px; }
+.admin-empty { padding: 24px; text-align: center; color: var(--fg-dim); font-size: 13px; }
+
+/* Section switcher tabs inside the admin panel */
+.admin-sections {
+    display: flex;
+    gap: 6px;
+    padding: 10px 22px 0;
+}
+.asec {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--fg-dim);
+    padding: 5px 12px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+}
+.asec.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+}
+.admin-sec { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+/* Danger zone: clear-all button */
+.admin-danger { padding: 10px 12px 4px; }
+.danger-btn {
+    display: block;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 9px;
+    border-radius: 8px;
+    color: var(--red);
+    border: 1px solid var(--red);
+    background: rgba(248, 113, 113, 0.08);
+}
+.danger-btn.armed {
+    color: #fff;
+    background: var(--red);
+    animation: rejectPulse 0.5s ease infinite;
+}

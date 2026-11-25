@@ -1,0 +1,122 @@
+.sports-view {
+  max-width: 800px;
+}
+
+.sports-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sports-loading, .sports-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 200px;
+  color: var(--text-dim);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bg-tile);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-card {
+  background: var(--bg-dark);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.event-teams {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.event-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg-panel);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.event-markets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.market-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.market-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  width: 50px;
+  flex-shrink: 0;
+}
+
+.market-outcomes {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.outcome-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  background: var(--bg-panel);
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
+.outcome-btn:hover {
+  background: var(--bg-tile);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.outcome-name {
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.outcome-odds {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}

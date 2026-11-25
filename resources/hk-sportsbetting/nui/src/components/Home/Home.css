@@ -1,0 +1,103 @@
+.home {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.home-hero {
+  text-align: center;
+  padding: 40px 20px 30px;
+}
+
+.home-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 3px;
+}
+.home-title span {
+  color: var(--text);
+  font-weight: 400;
+  font-size: 24px;
+  margin-left: 4px;
+}
+
+.home-subtitle {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.home-section {
+  margin-bottom: 24px;
+}
+.home-section h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.home-casino-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.casino-card {
+  background: var(--bg-dark);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.2s;
+  transform: translateY(-3px);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+}
+
+.casino-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+  border-color: var(--card-accent);
+}
+
+.casino-card:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.casino-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--card-accent);
+  margin-bottom: 4px;
+}
+
+.casino-card-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.home-sport-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sport-chip {
+  padding: 8px 14px;
+  background: var(--bg-dark);
+  border-radius: 20px;
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.sport-chip:hover {
+  background: var(--bg-panel);
+  color: var(--accent);
+  border-color: var(--accent);
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Race</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ===== Race HUD (top-right, hk-speedo minimal style) ===== -->
+    <div id="race-hud" class="hidden">
+        <div id="rh-name" class="rh-title"></div>
+        <div class="rh-rows">
+            <div class="rh-row"><span class="rh-k">CP</span><span id="rh-cp" class="rh-v">0/0</span></div>
+            <div class="rh-row rh-lap hidden"><span class="rh-k">LAP</span><span id="rh-lap" class="rh-v">1/1</span></div>
+            <div class="rh-row"><span class="rh-k">POS</span><span id="rh-pos" class="rh-v">1/1</span></div>
+            <div class="rh-row rh-time hidden"><span class="rh-k">TIME</span><span id="rh-time" class="rh-v">--</span></div>
+            <div class="rh-row rh-best hidden"><span class="rh-k">BEST</span><span id="rh-best" class="rh-v">--</span></div>
+        </div>
+    </div>
+
+    <!-- ===== User Track Picker ===== -->
+    <div id="picker" class="overlay hidden">
+        <div class="panel panel-md">
+            <div class="panel-header">
+                <div>
+                    <h2 id="pk-title">Street Races</h2>
+                    <p id="pk-subtitle" class="subtitle">Select a track to host</p>
+                </div>
+                <div class="h2h-bar" id="pk-h2h-bar">
+                    <label class="h2h-switch" title="Honk twice near another driver to challenge them 1v1">
+                        <input type="checkbox" id="pk-h2h-toggle">
+                        <span class="h2h-slider"></span>
+                        <span class="h2h-label">Head2Head</span>
+                    </label>
+                    <div class="h2h-bet" id="pk-h2h-bet-wrap">
+                        <span class="h2h-bet-prefix">$</span>
+                        <input type="number" id="pk-h2h-bet" class="h2h-bet-input"
+                               min="0" step="100" value="0" placeholder="0" title="Cash wager — winner takes the pot">
+                    </div>
+                </div>
+                <button class="btn-icon" data-close="picker">&times;</button>
+            </div>
+            <div class="panel-body">
+                <!-- In-race view: leave the current race -->
+                <div id="pk-step-inrace" class="hidden">
+                    <p class="tier-hint">You're currently in a race.</p>
+                    <button id="pk-leave" class="btn-danger tier-go">Leave Current Race</button>
+                </div>
+                <!-- Step 1: track list -->
+                <div id="pk-step-tracks">
+                    <div id="pk-list" class="track-list"></div>
+                    <p id="pk-empty" class="empty hidden">No tracks available.</p>
+                </div>
+                <!-- Step 2: allowed-tier selection before hosting -->
+                <div id="pk-step-tiers" class="hidden">
+                    <div class="tier-head">
+                        <button id="pk-back" class="btn-ghost">&larr; Back</button>
+                        <span id="pk-tier-track" class="tier-track"></span>
+                    </div>
+                    <p class="tier-hint">Which vehicle tiers may join? Leave all off for no restriction.</p>
+                    <div id="pk-tier-list" class="tier-list"></div>
+                    <div class="laps-row">
+                        <span class="laps-label">Min players to start</span>
+                        <input id="pk-min" class="laps-input" type="number" min="1" max="8" value="1">
+                    </div>
+                    <!-- Loop tracks only: how many laps -->
+                    <div id="pk-laps-row" class="laps-row hidden">
+                        <span class="laps-label">Laps</span>
+                        <input id="pk-laps" class="laps-input" type="number" min="1" max="20" value="2">
+                    </div>
+                    <label class="laps-row" for="pk-slip">
+                        <span class="laps-label">Slipstream (drafting boost)</span>
+                        <input id="pk-slip" type="checkbox" checked>
+                    </label>
+                    <div class="laps-row">
+                        <span class="laps-label">Ghost (no collisions)</span>
+                        <select id="pk-ghost" class="laps-input" style="width:auto">
+                            <option value="off">Off</option>
+                            <option value="start" selected>Start (15s)</option>
+                            <option value="full">Whole race</option>
+                        </select>
+                    </div>
+                    <div class="tier-yourinfo" id="pk-your-tier"></div>
+                    <button id="pk-host-go" class="btn-accent tier-go">Start Race</button>
+                </div>
+                <!-- Leaderboard sub-view (top 20 attempts) -->
+                <div id="pk-step-lb" class="hidden">
+                    <div class="tier-head">
+                        <button id="pk-lb-back" class="btn-ghost">&larr; Back</button>
+                        <span id="pk-lb-title" class="tier-track"></span>
+                    </div>
+                    <div class="lb-head">
+                        <span class="lb-rank">#</span>
+                        <span class="lb-time">TIME</span>
+                        <span class="lb-name">NAME</span>
+                        <span class="lb-veh">VEHICLE</span>
+                    </div>
+                    <div id="pk-lb-list" class="lb-list"></div>
+                    <p id="pk-lb-empty" class="empty hidden">No attempts recorded yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Admin Panel ===== -->
+    <div id="admin" class="overlay hidden">
+        <div class="panel panel-lg">
+            <div class="panel-header">
+                <h2 id="ad-title">Race Administration</h2>
+                <button class="btn-icon" data-close="admin">&times;</button>
+            </div>
+            <div class="panel-body">
+                <!-- Tracks view -->
+                <div id="ad-view-tracks" class="col">
+                    <div class="col-head">
+                        <h3 id="ad-tracks-lbl">Tracks</h3>
+                        <div>
+                            <button id="ad-cartiers" class="btn-ghost">Car Tiers</button>
+                            <button id="ad-new" class="btn-accent">+ Create Track</button>
+                        </div>
+                    </div>
+                    <div id="ad-track-list" class="track-list"></div>
+                    <p id="ad-empty" class="empty hidden">No tracks yet. Create one to begin.</p>
+                </div>
+                <!-- Car Tiers view -->
+                <div id="ad-view-cartiers" class="col hidden">
+                    <div class="col-head">
+                        <button id="ad-ct-back" class="btn-ghost">&larr; Back</button>
+                        <h3>Car Tiers</h3>
+                    </div>
+                    <input id="ad-ct-search" class="ct-search" type="text" placeholder="Search car name / model...">
+                    <p class="tier-hint">Set a car's class. "Auto" = let the system decide. Overrides only.</p>
+                    <div id="ad-ct-list" class="ct-list"></div>
+                </div>
+                <!-- Leaderboard management view -->
+                <div id="ad-view-lb" class="col hidden">
+                    <div class="col-head">
+                        <button id="ad-lb-back" class="btn-ghost">&larr; Back</button>
+                        <h3 id="ad-lb-title">Leaderboard</h3>
+                    </div>
+                    <p class="tier-hint">Rename or remove leaderboard records for this track.</p>
+                    <div class="lb-head lb-head-admin">
+                        <span class="lb-rank">#</span>
+                        <span class="lb-time">TIME</span>
+                        <span class="lb-name">NAME</span>
+                        <span class="lb-veh">VEHICLE</span>
+                        <span class="lb-tier">TIER</span>
+                        <span class="lb-adm">ACTIONS</span>
+                    </div>
+                    <div id="ad-lb-list" class="lb-list"></div>
+                    <p id="ad-lb-empty" class="empty hidden">No records for this track.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

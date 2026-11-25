@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOMEKONG Image Creator</title>
+    <link rel="stylesheet" href="nui://hk-imagecreator/html/assets/style.css">
+</head>
+<body>
+    <div id="app" class="hidden">
+        <!-- Studio Mode UI -->
+        <div id="studio-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>STUDIO</h2>
+                <span class="close-btn" onclick="closeUI()">&times;</span>
+            </div>
+            <div class="panel-body">
+                <div class="section">
+                    <label>Camera Preset</label>
+                    <div id="preset-list" class="preset-grid"></div>
+                </div>
+                <div class="section">
+                    <label>Zoom</label>
+                    <input type="range" id="zoom-slider" min="2" max="20" step="0.5" value="6">
+                </div>
+                <div class="section">
+                    <label>Spawn Model</label>
+                    <div class="input-row">
+                        <input type="text" id="model-input" placeholder="prop_weed_01">
+                        <button onclick="spawnModel()">Spawn</button>
+                    </div>
+                </div>
+                <div class="section actions">
+                    <button class="btn-capture" onclick="takeScreenshot()">📸 CAPTURE</button>
+                </div>
+                <div id="result-section" class="section hidden">
+                    <label>Last Capture</label>
+                    <div class="result-row">
+                        <input type="text" id="result-url" readonly>
+                        <button onclick="copyUrl()">Copy</button>
+                    </div>
+                    <img id="result-preview" class="preview-img" src="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo Mode UI -->
+        <div id="photo-panel" class="panel hidden">
+            <div class="panel-header">
+                <h2>PHOTO</h2>
+                <span class="close-btn" onclick="closeUI()">&times;</span>
+            </div>
+            <div class="panel-body">
+                <div class="section">
+                    <label>FOV Preset</label>
+                    <div id="fov-list" class="preset-grid"></div>
+                </div>
+                <div class="section">
+                    <label>Custom FOV</label>
+                    <input type="range" id="fov-slider" min="15" max="100" step="1" value="50">
+                </div>
+                <div class="section actions">
+                    <button class="btn-capture" onclick="takeScreenshot()">📸 CAPTURE</button>
+                </div>
+                <div id="photo-result" class="section hidden">
+                    <label>Last Photo</label>
+                    <div class="result-row">
+                        <input type="text" id="photo-url" readonly>
+                        <button onclick="copyPhotoUrl()">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="nui://hk-imagecreator/html/assets/app.js"></script>
+</body>
+</html>

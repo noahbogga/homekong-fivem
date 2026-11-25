@@ -1,0 +1,34 @@
+-- hk-handling :: turbo-by-design per-model persistence (2026-08-14)
+-- Adds DB-persisted "is this car turbocharged/supercharged from the factory"
+-- so admins can flag a car live via /setturbo, instead of only the config
+-- Turbo.DefaultModels roster.
+--
+-- IMPORTANT — this flag drives ENGINE/GEARBOX *FEEL* ONLY (spool build, whistle,
+-- flutter, shift feel). It does NOT add power and does NOT raise top speed. The
+-- actual POWER bump comes exclusively from the jim-mechanic turbo UPGRADE
+-- (native vehicle mod 18), and is applied equally to NA and turbo cars alike.
+-- So a turbo-by-design car merely *sounds/feels* turbo out of the box; it only
+-- gets quicker once the player installs the upgrade — same as any NA car.
+--
+--   turboDefault : NULL = UNSET — fall back to the config Turbo.DefaultModels
+--                     roster (so the built-in turbo-by-design list keeps giving
+--                     cars the feel with no explicit /setturbo). MUST be nullable
+--                     + DEFAULT NULL: a NOT NULL DEFAULT 0 would make every
+--                     pre-existing row read 0 = "explicitly NA", and the client
+--                     would then NEVER consult the config roster -> the whole
+--                     turbo-by-design list silently dies. (Same trap as
+--                     hybridClass — see add_hybrid.sql.)
+--                 0 = NA — explicitly forced naturally-aspirated feel via
+--                     `/setturbo 0` (overrides the config roster; distinct from
+--                     NULL/unset).
+--                 1 = TURBO — explicitly forced turbo-by-design feel via
+--                     `/setturbo 1` (spool + whistle default-on, no upgrade
+--                     required for the FEEL).
+ALTER TABLE `hk_handling`
+  ADD COLUMN `turboDefault` TINYINT DEFAULT NULL;   -- NULL = derive from config roster; 0 = NA; 1 = turbo
+
+-- If this migration was ever applied as NOT NULL DEFAULT 0, run the corrective
+-- step below once to un-break the config fallback (turns mass-migrated 0s back
+-- into "unset" while preserving any explicit /setturbo classification):
+--   ALTER TABLE `hk_handling` MODIFY `turboDefault` TINYINT NULL DEFAULT NULL;
+--   UPDATE `hk_handling` SET `turboDefault` = NULL WHERE `turboDefault` = 0;

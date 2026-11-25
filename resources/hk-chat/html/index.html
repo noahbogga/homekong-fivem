@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HK-CHAT</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Top-LEFT chat dock. No backdrop-filter (CEF renders blur opaque).
+         Keyboard-only: no element is mouse-clickable; all nav is via keys. -->
+    <div id="chat" class="chat idle">
+        <div id="tabs" class="tabs"></div>
+
+        <!-- Job tab roster header: online same-job players (id + real name) -->
+        <div id="roster" class="roster hidden"></div>
+
+        <div id="stream" class="stream"></div>
+
+        <div id="inputRow" class="input-row hidden">
+            <span id="selfId" class="self-id" title="Your server ID">#—</span>
+            <span id="inputTab" class="input-tab">GLOBAL</span>
+            <div class="input-wrap">
+                <input id="input" class="input" maxlength="256" autocomplete="off"
+                       spellcheck="false" placeholder="Say something…" />
+                <span id="preview" class="preview"></span>
+            </div>
+            <span class="input-hint"><kbd>Tab</kbd><kbd>Enter</kbd><kbd>Esc</kbd></span>
+        </div>
+
+        <!-- Slash command palette popup -->
+        <div id="palette" class="palette hidden"></div>
+    </div>
+
+    <!-- Admin settings panel (keyboard-navigable, opened via /chatadmin) -->
+    <div id="adminOverlay" class="admin-overlay hidden">
+        <div id="admin" class="admin">
+            <div class="admin-head">
+                <span class="admin-title">CHAT <span class="accent">ADMIN</span></span>
+                <span class="admin-sub">管理 · MODERATION</span>
+            </div>
+
+            <!-- Section switcher (Shift+Tab / Tab cycles) -->
+            <div id="adminSections" class="admin-sections">
+                <span class="asec active" data-sec="commands">COMMANDS</span>
+                <span class="asec" data-sec="players">PLAYERS</span>
+                <span class="asec" data-sec="messages">MESSAGES</span>
+            </div>
+
+            <div class="admin-filter">
+                <span class="af-slash">/</span>
+                <input id="adminFilter" class="af-input" placeholder="Filter…"
+                       autocomplete="off" spellcheck="false" />
+            </div>
+
+            <!-- COMMANDS section -->
+            <div id="secCommands" class="admin-sec">
+                <div class="admin-cols cols-cmd">
+                    <span class="ac-name">COMMAND</span>
+                    <span class="ac-toggle">← NO PREVIEW</span>
+                    <span class="ac-toggle">BLOCK CHAT →</span>
+                </div>
+                <div id="adminList" class="admin-list"></div>
+            </div>
+
+            <!-- PLAYERS section (mute toggles) -->
+            <div id="secPlayers" class="admin-sec hidden">
+                <div class="admin-cols cols-ply">
+                    <span class="ac-name">PLAYER</span>
+                    <span class="ac-toggle">MUTE ↵</span>
+                </div>
+                <div id="playerList" class="admin-list"></div>
+            </div>
+
+            <!-- MESSAGES section (remove recent public lines) -->
+            <div id="secMessages" class="admin-sec hidden">
+                <div class="admin-cols cols-msg">
+                    <span class="ac-name">RECENT PUBLIC MESSAGE</span>
+                    <span class="ac-toggle">DELETE ↵</span>
+                </div>
+                <div id="msgList" class="admin-list"></div>
+                <div class="admin-danger">
+                    <span id="clearAllBtn" class="danger-btn">CLEAR ALL CHAT + HISTORY  (press C)</span>
+                </div>
+            </div>
+
+            <div id="adminFoot" class="admin-foot"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

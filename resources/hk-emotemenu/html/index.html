@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HOMEKONG · Emotes</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Right-docked drawer over a fully transparent overlay (no dim) so the game
+         stays visible while browsing. No backdrop-filter: FiveM CEF renders blur
+         as an opaque black box (see hk-hub notes). -->
+    <div id="overlay" class="overlay hidden">
+        <div id="panel" class="panel">
+            <!-- Left rail: brand + category tabs + cancel -->
+            <aside class="rail">
+                <div class="brand">
+                    <span class="brand-mark">HOME<span class="accent">KONG</span></span>
+                    <span class="brand-tag">表情動作 · EMOTES</span>
+                </div>
+                <nav id="tabs" class="tabs"></nav>
+                <!-- Group: mouse-only, never a keyboard tab (so kbd nav can't
+                     land on it). Sits above Stop Emote. -->
+                <button id="btn-group" class="group-btn mouse-only-btn" title="Group emotes (mouse only)">
+                    <span class="ico">👥</span>
+                    <span class="txt"><span class="en">Group Emotes</span><span class="zh">群組表情</span></span>
+                    <span id="group-badge" class="group-badge hidden">0</span>
+                </button>
+                <!-- Stop Emote: mouse-only. In keyboard mode press X instead. -->
+                <button id="btn-cancel" class="cancel-btn mouse-only-btn" title="Stop current emote (X)">
+                    <span class="ico">✖</span>
+                    <span class="txt"><span class="en">Stop Emote</span><span class="zh">取消動作 · 鍵盤按 X</span></span>
+                </button>
+            </aside>
+
+            <!-- Right: search header + scrolling content -->
+            <section class="main">
+                <header class="main-head">
+                    <div class="search-wrap">
+                        <span class="search-ico">🔍</span>
+                        <input id="search" class="search" type="text" spellcheck="false"
+                               placeholder="搜尋動作… Search emotes, dances, props…" />
+                        <button id="search-clear" class="search-clear hidden" title="Clear">&times;</button>
+                    </div>
+                    <button id="btn-close" class="btn-close mouse-only-btn" title="Close (ESC)">&times;</button>
+                </header>
+
+                <main id="content" class="content"></main>
+
+                <footer class="foot">
+                    <span class="hint"><kbd>←</kbd><kbd>→</kbd> 切換欄 Rail/Grid</span>
+                    <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> 分頁/選擇</span>
+                    <span class="hint"><kbd>Enter</kbd> 播放 Play</span>
+                    <span class="hint kbd-only"><kbd>X</kbd> 停止 Stop</span>
+                    <span class="hint mouse-only"><kbd>F</kbd> 收藏</span>
+                    <span class="hint kbd-only"><kbd>⌫</kbd> 關閉</span>
+                    <span class="hint mouse-only"><kbd>Esc</kbd> 關閉</span>
+                    <span id="mode-chip" class="mode-chip"><span class="mc-key">`</span> 鍵盤 Keyboard</span>
+                </footer>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

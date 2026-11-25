@@ -1,0 +1,128 @@
+granvia | Toyota Granvia 2019 | 5.20 | 11.00 | 32.00 | ? | 180
+towrod | Ford F-350 Super Duty Tow Truck 2020 | 5.40 | 11.50 | 29.00 | ? | 155
+gcmmiev2010 | Mitsubishi i-MiEV 2010 | 7.60 | 16.20 | ? | ? | 130
+evoque | Range Rover Evoque Si4 2011 | 3.60 | 7.60 | 20.50 | ? | 217
+hkchar | Dodge Charger Pursuit 5.7 V8 2015 | 3.00 | 6.10 | 14.50 | 26.00 | 240
+hkgt17 | Ford GT 2017 | 1.50 | 3.00 | 5.90 | 10.20 | 347
+hkm4 | BMW M4 Competition F82 2019 | 2.00 | 4.00 | 9.00 | 14.50 | 280
+hkmst | Ford Mustang GT 2018 | 2.10 | 4.30 | 10.30 | 16.50 | 250
+hksave | Ford Explorer 3.5 EcoBoost 2018 | 3.40 | 6.90 | 17.80 | 31.50 | 225
+intercept2 | Ford Police Interceptor Utility 3.7 2018 | 4.10 | 8.20 | 21.00 | ? | 210
+hkbus | Volvo B7L Alexander ALX400 Bus 2005 | 16.00 | 35.00 | ? | ? | 95
+hkrtaxi3 | Toyota Crown Comfort Taxi 2010 | 6.50 | 13.20 | ? | ? | 150
+430s | Ferrari 430 Scuderia 2007 | 1.75 | 3.60 | 7.80 | 11.90 | 319
+adr8 | Audi R8 V10 Performance 2023 | 1.65 | 3.10 | 6.50 | 10.30 | 331
+focusrs | Ford Focus RS 2016 | 2.35 | 4.70 | 11.20 | 20.00 | 266
+gcmg37convertible | Infiniti G37 Convertible 2009 | 3.00 | 6.00 | 15.00 | ? | 250
+ikx3_bat23 | Bentley Bentayga V8 2023 | 2.20 | 4.50 | 10.80 | 18.00 | 290
+m6f13 | BMW M6 Coupe F13 2012 | 2.10 | 4.20 | 9.20 | 14.50 | 305
+lp670sv | Lamborghini Murciélago LP670-4 SV 2009 | 1.70 | 3.20 | 6.80 | 10.40 | 342
+4runner | Toyota 4Runner TRD Pro 2021 | 4.10 | 8.00 | 22.50 | ? | 180
+cooper05 | MINI Cooper S 2005 | 3.60 | 7.40 | 20.50 | ? | 218
+fk2 | Honda Civic Type R FK2 2015 | 2.80 | 5.70 | 12.90 | 22.00 | 270
+16m4gts | BMW M4 GTS 2016 | 1.90 | 3.80 | 8.50 | 13.50 | 305
+20s63c | Mercedes-AMG S63 Coupe 2020 | 1.90 | 3.50 | 8.20 | 13.60 | 300
+amggt63 | Mercedes-AMG GT 63 S 4-Door 2018 | 1.75 | 3.20 | 7.20 | 11.60 | 315
+cla45 | Mercedes-AMG CLA 45 2015 | 2.30 | 4.60 | 11.00 | 20.00 | 270
+continental17 | Lincoln Continental 3.0 AWD 2017 | 2.90 | 5.80 | 14.50 | 26.50 | 250
+hktaxi | Audi RS6 Avant C8 2020 | 1.75 | 3.60 | 8.30 | 12.90 | 305
+ikx3_m5cs22 | BMW M5 CS 2022 | 1.55 | 3.00 | 6.70 | 10.40 | 305
+stradale18 | Maserati GranTurismo MC Stradale 2018 | 2.20 | 4.50 | 10.20 | 16.50 | 303
+chall70 | Dodge Challenger R/T 426 Hemi 1970 | 2.70 | 5.80 | 16.00 | ? | 190
+charger69 | Dodge Charger R/T 426 Hemi 1969 | 2.80 | 6.00 | 16.50 | ? | 200
+mst302 | Ford Mustang Boss 302 1969 | 3.20 | 6.90 | 18.50 | ? | 190
+sgt500 | Shelby GT500 1967 | 3.10 | 6.50 | 17.00 | ? | 210
+soulrunner | Plymouth Road Runner 426 Hemi 1970 | 2.80 | 6.10 | 16.80 | ? | 200
+ss69 | Chevrolet Camaro SS 396 1969 | 3.10 | 6.80 | 18.00 | ? | 195
+v877 | Aston Martin V8 Vantage 1977 | 2.80 | 5.80 | 15.00 | 26.00 | 270
+jp12 | Jeep Wrangler Rubicon 2012 | 5.20 | 10.70 | ? | ? | 160
+ram2500 | Ram 2500 6.7 Cummins 2020 | 4.70 | 9.30 | 28.00 | ? | 170
+sl65bs | Mercedes-Benz SL 65 AMG Black Series 2008 | 2.00 | 3.80 | 8.60 | 14.20 | 320
+2019m5 | BMW M5 Competition 2019 | 1.60 | 3.30 | 7.20 | 11.10 | 305
+a6 | Audi A6 55 TFSI Quattro 2020 | 2.60 | 5.10 | 12.80 | 24.00 | 250
+civic | Honda Civic 1.5 Turbo 2020 | 3.60 | 7.50 | 20.00 | ? | 220
+ct5v2022 | Cadillac CT5-V Blackwing 2022 | 1.90 | 3.70 | 8.50 | 13.80 | 322
+merce63s | Mercedes-AMG E63 S W213 2016 | 1.70 | 3.40 | 7.80 | 12.20 | 300
+rs721 | Audi RS7 Sportback C8 2021 | 1.75 | 3.60 | 8.20 | 12.80 | 305
+wulingsx | Wuling Hongguang S1 2016 | 8.20 | 17.50 | ? | ? | 160
+08r35 | Nissan GT-R R35 2008 | 1.75 | 3.50 | 8.00 | 13.00 | 310
+10r8 | Audi R8 V10 2010 | 1.95 | 3.90 | 8.80 | 14.20 | 316
+19ftype | Jaguar F-Type P300 2019 | 2.90 | 5.70 | 14.00 | 25.00 | 250
+2016rs7 | Audi RS7 Performance C7 2016 | 1.80 | 3.70 | 8.40 | 13.20 | 305
+458it | Ferrari 458 Italia 2009 | 1.65 | 3.40 | 7.30 | 11.00 | 325
+a80 | Toyota Supra Twin Turbo Mk4 1994 | 2.50 | 5.10 | 12.00 | 21.00 | 250
+amggts | Mercedes-AMG GT S 2017 | 1.85 | 3.80 | 8.60 | 13.50 | 310
+amgone1 | Mercedes-AMG ONE 2023 | 1.35 | 2.90 | 5.60 | 7.00 | 352
+aqv | Alfa Romeo Giulia Quadrifoglio 2017 | 1.95 | 3.90 | 9.00 | 14.60 | 307
+c63s | Mercedes-AMG C63 S W205 2016 | 2.00 | 4.00 | 9.40 | 15.50 | 290
+dzsian | Lamborghini Sián FKP 37 2020 | 1.45 | 2.80 | 6.20 | 9.90 | 350
+e632021 | Mercedes-AMG E63 S W213 2021 | 1.70 | 3.40 | 7.80 | 12.20 | 300
+evo9 | Mitsubishi Lancer Evolution IX 2007 | 2.40 | 5.00 | 12.00 | ? | 250
+f812c21 | Ferrari 812 Competizione 2022 | 1.55 | 2.85 | 5.90 | 8.80 | 340
+fer296fh5 | Ferrari 296 GTB 2022 | 1.40 | 2.90 | 5.70 | 7.30 | 330
+ferf8fh5 | Ferrari F8 Tributo 2022 | 1.45 | 2.90 | 5.80 | 8.20 | 340
+golf75r19 | Volkswagen Golf R Mk7.5 2019 | 2.30 | 4.60 | 10.80 | 19.00 | 250
+gt430 | Lotus Evora GT430 2019 | 1.95 | 3.80 | 8.80 | 14.20 | 305
+gt50019 | Ford Shelby Mustang GT500 2019 | 1.75 | 3.50 | 8.00 | 12.50 | 290
+hs2000 | Honda S2000 1999 | 3.00 | 6.20 | 15.00 | 27.00 | 241
+ikx3_4gts25 | Porsche 911 Targa 4 GTS 2025 | 1.75 | 3.50 | 7.80 | 12.30 | 307
+ikx3_civicr23 | Honda Civic Type R FL5 2024 | 2.60 | 5.40 | 12.40 | 21.00 | 275
+ikx3_gtam21 | Alfa Romeo Giulia GTAm 2021 | 1.85 | 3.60 | 8.20 | 13.20 | 300
+kiagt | Kia Stinger GT 2020 | 2.35 | 4.90 | 11.80 | 21.00 | 270
+lanex400 | Mitsubishi Lancer Evolution X FQ-400 2010 | 2.00 | 3.80 | 9.00 | 15.00 | 250
+lp610 | Lamborghini Huracán LP610-4 2015 | 1.55 | 3.20 | 6.70 | 9.90 | 325
+lp640 | Lamborghini Murciélago LP640 2006 | 1.75 | 3.40 | 7.20 | 11.00 | 340
+m3e92 | BMW M3 E92 2007 | 2.10 | 4.80 | 11.00 | 19.00 | 250
+m4f82 | BMW M4 Competition F82 2019 | 2.00 | 4.00 | 9.00 | 14.50 | 280
+mk3vr6 | Volkswagen Golf VR6 Mk3 1993 | 3.60 | 7.60 | 21.00 | ? | 225
+na1 | Honda NSX Type R NA1 1992 | 2.50 | 5.70 | 13.80 | 24.50 | 270
+nsx17 | Acura NSX NC1 2017 | 1.55 | 3.00 | 6.90 | 10.80 | 307
+oycpro | Mercedes-AMG GT R Pro 2020 | 1.85 | 3.60 | 8.10 | 12.80 | 318
+plaid | Tesla Model S Plaid 2022 | 1.35 | 2.15 | 4.50 | 6.50 | 322
+r32 | Nissan Skyline GT-R R32 1992 | 2.50 | 5.60 | 13.50 | 24.00 | 250
+redeye | Dodge Challenger SRT Hellcat Redeye 2019 | 1.90 | 3.80 | 8.70 | 13.80 | 327
+rx7 | Mazda RX-7 Spirit R FD3S 2000 | 2.70 | 5.50 | 13.00 | 22.50 | 250
+s15 | Nissan Silvia S15 Spec-R 1999 | 3.30 | 6.70 | 17.50 | ? | 235
+s65amg | Mercedes-Benz S65 AMG W222 2014 | 2.10 | 4.20 | 9.80 | 16.50 | 300
+soullfa | Lexus LFA 2010 | 1.95 | 3.70 | 8.60 | 13.70 | 325
+supersport | Bugatti Veyron Super Sport 2011 | 1.35 | 2.60 | 5.20 | 7.80 | 431
+thegtrn24 | Nissan GT-R Nismo 2024 | 1.45 | 2.80 | 6.40 | 10.00 | 315
+thetcnca | Lamborghini Temerario 2025 | 1.35 | 2.70 | 5.80 | 8.80 | 343
+thettrs20 | Audi TT RS Final Edition 2023 | 1.90 | 3.70 | 8.80 | 15.00 | 280
+wmlykan16 | W Motors Lykan HyperSport 2016 | 1.45 | 2.90 | 6.60 | 10.50 | 395
+galaxyroamer | FICTIONAL | ? | ? | ? | ? | 180
+ikx3dark24 | Ford Mustang GT 2024 | 2.10 | 4.30 | 10.10 | 16.00 | 250
+redeye21 | Dodge Charger SRT Hellcat Redeye 2021 | 1.80 | 3.60 | 8.30 | 13.20 | 326
+mb300sl | Mercedes-Benz 300 SL Gullwing 1954 | 4.30 | 8.80 | 22.50 | ? | 260
+taki2000gt | Toyota 2000GT 1966 | 5.20 | 10.00 | 29.00 | ? | 220
+18performante | Lamborghini Huracán Performante 2018 | 1.45 | 2.90 | 6.40 | 9.70 | 325
+20sf90 | Ferrari SF90 Stradale 2021 | 1.25 | 2.50 | 4.70 | 6.70 | 340
+570ss | McLaren 570S Spider 2018 | 1.70 | 3.20 | 6.80 | 10.50 | 328
+agera2011 | Koenigsegg Agera 2011 | 1.45 | 3.00 | 5.80 | 8.00 | 420
+c7 | Chevrolet Corvette Stingray C7 2014 | 1.90 | 4.00 | 9.10 | 14.70 | 290
+centenario | Lamborghini Centenario LP770-4 2017 | 1.45 | 2.80 | 6.00 | 9.20 | 350
+cgt | Porsche Carrera GT 2008 | 1.85 | 3.90 | 8.80 | 13.60 | 330
+chiron | Bugatti Chiron 2017 | 1.35 | 2.45 | 4.80 | 6.50 | 420
+devel22 | Devel Sixteen Prototype 2022 | ? | 1.80 | 2.20 | ? | 560
+fgt | Ford GT 2005 | 1.90 | 3.80 | 8.60 | 13.70 | 330
+gallardo07 | Lamborghini Gallardo Superleggera 2007 | 1.80 | 3.80 | 8.20 | 12.80 | 315
+gemera | Koenigsegg Gemera 2022 | 1.35 | 2.20 | 4.80 | 8.50 | 400
+gt17 | Ford GT 2017 | 1.50 | 3.00 | 5.90 | 10.20 | 347
+ikx3_750s23 | McLaren 750S 2024 | 1.40 | 2.80 | 5.40 | 7.80 | 332
+ikx3daytona22 | Ferrari Daytona SP3 2022 | 1.45 | 2.85 | 5.80 | 8.70 | 340
+lavn | Bugatti La Voiture Noire 2020 | 1.15 | 2.40 | 4.40 | 6.50 | 420
+lp700 | Lamborghini Aventador LP700-4 2013 | 1.45 | 2.90 | 6.20 | 9.60 | 350
+m600s | Noble M600 Speedster 2017 | 1.65 | 3.50 | 7.50 | 11.50 | 362
+mgt | Ford Mustang GT 2015 | 2.30 | 4.80 | 11.20 | 18.50 | 250
+murc640r | Lamborghini Murciélago LP640 Roadster 2008 | 1.80 | 3.40 | 7.40 | 11.40 | 330
+oycrev | Lamborghini Revuelto 2024 | 1.25 | 2.50 | 5.00 | 7.40 | 350
+slsamg | Mercedes-Benz SLS AMG 2010 | 1.95 | 3.80 | 8.40 | 13.20 | 317
+utopia23 | Pagani Utopia 2023 | 1.45 | 2.90 | 6.30 | 9.80 | 350
+venomf5 | Hennessey Venom F5 2022 | 1.40 | 2.70 | 5.00 | 7.00 | 480
+23esv | Cadillac Escalade ESV 2020 | 3.30 | 6.80 | 17.50 | ? | 180
+bmwxm | BMW XM 2024 | 2.10 | 4.30 | 10.00 | 16.50 | 270
+oycdefender | Land Rover Defender 110 P400 2021 | 3.00 | 6.10 | 16.00 | 30.00 | 208
+u8 | BYD Yangwang U8 2024 | 1.75 | 3.60 | 9.50 | ? | 200
+x6mf16 | BMW X6 M F16 2016 | 2.10 | 4.20 | 9.80 | 16.20 | 280
+alphardhr | Toyota Alphard 3.5 V6 2019 | 3.90 | 8.30 | 23.00 | ? | 200
+manyau | Ford Transit 350 EcoBoost Van 2020 | 4.00 | 8.00 | 22.00 | ? | 160

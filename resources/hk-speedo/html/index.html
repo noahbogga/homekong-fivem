@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Speedo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="speedo-container" class="hidden">
+        <!-- Night-mode LED backlight: a soft glow disc BEHIND the gauge. Off by day;
+             after 18:00 it lights (white, or the car's underglow colour if neon is on).
+             Sits first so it renders under everything. -->
+        <div id="backlight"></div>
+        <!-- Outer ring: SPEED -->
+        <svg id="gauge-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <!-- Glow filters -->
+            <defs>
+                <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="5" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow-yellow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow-purple" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <!-- Gradient for speed arc: blue → green → yellow → red (along arc direction) -->
+                <linearGradient id="speed-gradient" x1="20" y1="280" x2="280" y2="20" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#00d4ff"/>
+                    <stop offset="35%" stop-color="#00ff88"/>
+                    <stop offset="65%" stop-color="#ffcc00"/>
+                    <stop offset="100%" stop-color="#ff3344"/>
+                </linearGradient>
+                <!-- Gradient for RPM arc: white/blue → blue → red (redline at end only) -->
+                <linearGradient id="rpm-gradient" x1="20" y1="280" x2="280" y2="20" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#aaddff"/>
+                    <stop offset="40%" stop-color="#66bbff"/>
+                    <stop offset="78%" stop-color="#88ccff"/>
+                    <stop offset="88%" stop-color="#ff6644"/>
+                    <stop offset="100%" stop-color="#ff2222"/>
+                </linearGradient>
+            </defs>
+
+            <!-- PLACEHOLDER_GAUGE_RINGS -->
+        </svg>
+
+        <!-- Center info overlay -->
+        <div id="center-info">
+            <div id="gear-display"><span class="gear-num">N</span></div>
+            <div id="speed-value">0</div>
+            <div id="speed-unit">KM/H</div>
+        </div>
+
+        <!-- CLUTCH gauge — manual modes only (hidden on auto/DCT/EV). A slim vertical fill:
+             FULL = clutch out (engaged, drive coupled); DRAINS as the clutch is pressed in.
+             Cyan when engaged, amber while feathering, red when fully in / mid-shift. -->
+        <div id="clutch-gauge" class="hidden-clutch">
+            <div id="clutch-track"><div id="clutch-fill"></div></div>
+            <div id="clutch-label">CLT</div>
+        </div>
+
+        <!-- TURBO gauge — turbo cars only (hidden otherwise). Mirror of the clutch gauge on the
+             RIGHT of center. Slim vertical fill = boost spool (laggy, eases up under throttle,
+             sags on lift). Flashes on the PUNCH as boost slams online (turboHit). -->
+        <div id="turbo-gauge" class="hidden-turbo">
+            <div id="turbo-track"><div id="turbo-fill"></div></div>
+            <div id="turbo-label">BST</div>
+        </div>
+
+
+        <!-- Horizontal RPM bar — ONLY shown in MINIMAL mode (the rings are hidden then).
+             Normal cars: single fill from the left (rpm). EVs: CENTER-SPLIT power meter
+             — brake fill grows LEFT from centre (red), throttle grows RIGHT (green). -->
+        <div id="mini-rpm">
+            <div id="mini-rpm-fill"></div>
+            <div id="mini-rpm-brake"></div>
+            <div id="mini-rpm-thr"></div>
+        </div>
+
+        <!-- Fuel + NOS bars (span under the two gauges) -->
+        <div id="bars">
+            <!-- Fuel row: icon + bar -->
+            <div class="bar-row" id="fuel-row">
+                <div class="bar-icon" id="fuel-icon" title="FUEL">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h9a1 1 0 0 1 1 1v16h1V4h1l3 3v9a2 2 0 0 0 4 0V9h-2V7l-2-2 1-1 4 4v8a4 4 0 0 1-8 0V9h-1v11H2v-1h1V4a1 1 0 0 1 0-1Zm2 2v5h5V5H5Z"/></svg>
+                </div>
+                <div class="bar-track" id="fuel-bar-container">
+                    <div class="bar-fill" id="fuel-bar-fill"></div>
+                </div>
+            </div>
+            <!-- NOS block: hidden unless the car has the NOS modifier -->
+            <div id="nos-block" class="hidden-nos">
+                <div class="bar-row" id="nos-row">
+                    <!-- ONE icon slot; swaps NOS bottle <-> purge spray via .purging class -->
+                    <div class="bar-icon" id="nos-icon" title="NOS">
+                        <svg class="icon-nos" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2h4v2h-1v2.2a5 5 0 0 1 3 4.6V21a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-10.2a5 5 0 0 1 3-4.6V4h-1V2Zm0 9v9h4v-9a3 3 0 0 0-4 0Z"/></svg>
+                        <svg class="icon-purge" viewBox="0 0 24 24" fill="currentColor"><path d="M11 4h2v3h-2V4Zm-4 .5 1.7 1L7.4 7.2l-1.7-1L7 4.5Zm10 0 1.3 1.7-1.7 1-1.3-1.7 1.7-1ZM12 8a5 5 0 0 1 5 5v7a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v6h6v-6a3 3 0 0 0-3-3Z"/></svg>
+                    </div>
+                    <div class="bar-track" id="nos-bar-container">
+                        <div class="bar-fill" id="nos-bar-fill"></div>
+                    </div>
+                </div>
+                <!-- 3 level dots (level 1/2/3) -->
+                <div id="nos-dots">
+                    <span class="nos-dot" data-lvl="1"></span>
+                    <span class="nos-dot" data-lvl="2"></span>
+                    <span class="nos-dot" data-lvl="3"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicator lights (TC/ABS/HB stay text; the rest are SVG icons) -->
+        <div id="indicators">
+            <!-- Drivetrain layout (RWD / FWD / AWD) from hk-handling — FURTHEST LEFT, before TC.
+                 Shown on all cars once known; hidden until the export reports one. -->
+            <div class="indicator hidden" id="ind-drivetrain" title="DRIVETRAIN">RWD</div>
+            <div class="indicator active-tc" id="ind-tc" title="TC">TC</div>
+            <div class="indicator active-abs" id="ind-abs" title="ABS">ABS</div>
+            <div class="indicator" id="ind-handbrake" title="HANDBRAKE">HB</div>
+            <div class="indicator icon-pill" id="ind-seatbelt" title="SEATBELT">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm10.5 2.5 1.4 1.4-8 8H18v2h-6a2 2 0 0 1-2-2V8h2v5.1l6.5-8.6ZM8 16h8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z"/></svg>
+            </div>
+            <!-- HANDS UP — only shown while hands are up (qb-smallresources getHandsup),
+                 pulses fast + hard bright red. Hidden otherwise so it never clutters. -->
+            <div class="indicator icon-pill hidden" id="ind-handsup" title="HANDS UP">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 22a3 3 0 0 1-3-3v-6.3l-1 .6a1.4 1.4 0 0 1-1.4-2.4l3-1.8a2 2 0 0 1 1-.3V4.5a1.25 1.25 0 0 1 2.5 0V9h.5V3.2a1.25 1.25 0 0 1 2.5 0V9h.5V2.5a1.25 1.25 0 0 1 2.5 0V9h.5V3.8a1.25 1.25 0 0 1 2.5 0V12a10 10 0 0 1-.6 3.5l-1.4 4A3 3 0 0 1 14.6 22H7Z"/></svg>
+            </div>
+            <div class="indicator icon-pill" id="ind-lock" title="DOOR LOCK">
+                <svg class="icon-locked" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v3h6V7a3 3 0 0 0-3-3Zm0 10a1.5 1.5 0 0 0-.5 2.9V19h1v-2.1A1.5 1.5 0 0 0 12 14Z"/></svg>
+                <svg class="icon-unlocked" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5h-2a3 3 0 0 0-6 0v3h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V7a5 5 0 0 1 5-5Zm0 12a1.5 1.5 0 0 0-.5 2.9V19h1v-2.1A1.5 1.5 0 0 0 12 14Z"/></svg>
+            </div>
+            <!-- Headlights: dim grey OFF; white LOW beam; bright blue HIGH beam. The two
+                 glyphs (rays angled DOWN = low, level/up = high) swap via .highbeam. -->
+            <div class="indicator icon-pill lights-off" id="ind-lights" title="HEADLIGHTS">
+                <!-- LOW beam: D-shaped reflector + 3 rays angled DOWN-right. -->
+                <svg class="icon-low" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5a7 7 0 0 1 0 14h4a7 7 0 0 0 0-14H4Z"/><path d="M14 7.5l6-1.2v1.6l-6 1.2Zm0 3.7h6v1.6h-6Zm0 3.7l6 1.2v1.6l-6-1.2Z"/></svg>
+                <!-- HIGH beam: same reflector + 3 STRAIGHT horizontal rays. -->
+                <svg class="icon-high" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5a7 7 0 0 1 0 14h4a7 7 0 0 0 0-14H4Z"/><path d="M14 7.7h6v1.6h-6Zm0 3.5h6v1.6h-6Zm0 3.5h6v1.6h-6Z"/></svg>
+            </div>
+            <!-- Gearbox mode: A = auto/DCT, M = manual, E = electric (single-gear). Pulses
+                 on change. On hybrids this stays the REAL gearbox (A/M); the ⚡ pill beside
+                 it shows the drive mode instead. -->
+            <div class="indicator" id="ind-gearmode" title="GEARBOX MODE">A</div>
+            <!-- Hybrid mode ⚡ (hybrids only): sits right of the A/M pill. GREEN = running on
+                 electric (e-mode), GOLD = engine engaged (ICE). Hidden on non-hybrids. -->
+            <div class="indicator hidden" id="ind-hybridmode" title="HYBRID MODE">⚡</div>
+            <!-- Regen mode (EV only): shows the one-pedal vs coast STYLE. Hidden on
+                 non-EVs. The D1/D2/D3 LEVEL shows in the gear display instead. -->
+            <div class="indicator hidden" id="ind-regenmode" title="REGEN MODE">1P</div>
+            <!-- LAUNCH CONTROL: hidden when not launch-capable. Grey when idle/ready;
+                 grey box + red pulse while staging (handbrake held); solid RED while armed
+                 (throttle held, staged); GOLD during the launch boost window; fades to grey
+                 as boost ends. State comes 100% from hk-handling (GetLaunchState). -->
+            <div class="indicator hidden" id="ind-launch" title="LAUNCH CONTROL">LC</div>
+            <!-- AUTO-BLINKER (LAlt) — LAST pill. Hidden when disarmed; when armed, a small green
+                 pill that softly pulses (like the other status pills). No side/flash. -->
+            <div class="indicator hidden" id="ind-blinker" title="AUTO BLINKER">⇆</div>
+        </div>
+
+        <!-- Event glow overlays -->
+        <div id="glow-overlay" class="glow-none"></div>
+        <!-- Dedicated redline limiter glow (independent of event glows) -->
+        <div id="redline-overlay"></div>
+        <!-- Drive-mode change pulse — a soft, short inner ring bloom around the RPM
+             gauge when switching eco<->sport (auto<->manual). Sized to the inner ring. -->
+        <div id="mode-overlay"></div>
+    </div>
+
+    <!-- (Our custom odometer bar was removed — jim-mechanic's built-in odometer is
+         used instead. Its dial speedometer stays disabled; our gauge cluster covers that.) -->
+
+    <!-- (Passengers now reuse the MINIMAL panel layout, not a separate box.) -->
+
+    <script src="app.js"></script>
+</body>
+</html>

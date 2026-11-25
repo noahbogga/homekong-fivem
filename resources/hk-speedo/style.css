@@ -1,0 +1,208 @@
+/* hk-speedo :: style.css — Racing gauge with glow effects */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: transparent; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+#speedo-container {
+    position: fixed;
+    bottom: 224px;
+    right: 224px;
+    width: 330px;
+    height: 330px;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+#speedo-container.hidden { opacity: 0; pointer-events: none; }
+#speedo-container.visible { opacity: 1; pointer-events: none; }
+#speedo-container.visible.idle { opacity: 0.6; }
+
+/* SVG Gauge */
+#gauge-svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    filter: drop-shadow(0 0 6px rgba(0, 180, 255, 0.15));
+}
+
+/* Arc tracks (background) */
+.arc-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-linecap: round;
+}
+.arc-track-outer { stroke-width: 10; }
+.arc-track-inner { stroke-width: 7; }
+
+/* Active arcs */
+.arc-active {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.05s linear;
+}
+.arc-speed {
+    stroke: url(#speed-gradient);
+    stroke-width: 10;
+    filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.4));
+}
+.arc-rpm {
+    stroke: url(#rpm-gradient);
+    stroke-width: 7;
+    filter: drop-shadow(0 0 3px rgba(51, 136, 255, 0.3));
+}
+
+/* Tick marks */
+.tick-mark {
+    stroke: rgba(255, 255, 255, 0.25);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+}
+.tick-label {
+    fill: rgba(255, 255, 255, 0.5);
+    font-size: 8px;
+    text-anchor: middle;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+}
+
+/* Redline zone */
+.redline-zone {
+    fill: none;
+    stroke: rgba(255, 40, 40, 0.25);
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+/* Center info */
+#center-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    pointer-events: none;
+}
+#gear-display {
+    font-size: 63px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 1;
+    text-shadow: 0 0 12px rgba(0, 180, 255, 0.5);
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+#gear-display.rev-match {
+    color: #00ff88;
+    text-shadow: 0 0 16px rgba(0, 255, 136, 0.7);
+}
+#gear-display.bad-shift {
+    color: #ff3344;
+    text-shadow: 0 0 18px rgba(255, 51, 68, 0.8);
+}
+#gear-display.bad-down {
+    color: #ffcc00;
+    text-shadow: 0 0 16px rgba(255, 204, 0, 0.7);
+}
+#speed-value {
+    font-size: 27px;
+    font-weight: 700;
+    margin-top: 3px;
+    opacity: 0.9;
+}
+#speed-unit {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.5;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* Indicators row */
+#indicators {
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+.indicator {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+}
+.indicator.active-nos {
+    color: #00ccff;
+    background: rgba(0, 204, 255, 0.15);
+    border-color: rgba(0, 204, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 204, 255, 0.3);
+}
+.indicator.active-drift {
+    color: #ff66ff;
+    background: rgba(255, 102, 255, 0.12);
+    border-color: rgba(255, 102, 255, 0.4);
+    box-shadow: 0 0 8px rgba(255, 102, 255, 0.3);
+}
+.indicator.active-handbrake {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.12);
+    border-color: rgba(255, 68, 68, 0.4);
+    box-shadow: 0 0 6px rgba(255, 68, 68, 0.3);
+}
+.indicator.active-launch {
+    color: #00ff88;
+    background: rgba(0, 255, 136, 0.12);
+    border-color: rgba(0, 255, 136, 0.4);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+}
+
+/* Glow overlay — full gauge border glow for events */
+#glow-overlay {
+    position: absolute;
+    top: -4px; left: -4px;
+    right: -4px; bottom: -4px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+#glow-overlay.glow-green {
+    opacity: 1;
+    box-shadow: inset 0 0 30px rgba(0, 255, 136, 0.2), 0 0 20px rgba(0, 255, 136, 0.15);
+    animation: pulse-green 0.6s ease-out forwards;
+}
+#glow-overlay.glow-red {
+    opacity: 1;
+    box-shadow: inset 0 0 30px rgba(255, 50, 50, 0.25), 0 0 20px rgba(255, 50, 50, 0.2);
+    animation: pulse-red 0.4s ease-out forwards;
+}
+#glow-overlay.glow-yellow {
+    opacity: 1;
+    box-shadow: inset 0 0 25px rgba(255, 200, 0, 0.2), 0 0 15px rgba(255, 200, 0, 0.15);
+    animation: pulse-yellow 0.4s ease-out forwards;
+}
+#glow-overlay.glow-nos {
+    opacity: 1;
+    box-shadow: inset 0 0 25px rgba(0, 180, 255, 0.2), 0 0 18px rgba(0, 180, 255, 0.15);
+}
+
+@keyframes pulse-green {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-red {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0; }
+}
+@keyframes pulse-yellow {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}

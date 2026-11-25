@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HK Garage</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Left dock = sectioned vehicle list. Right side of screen stays open so
+         the live 3D vehicle render is visible; a floating card overlays it. -->
+    <div id="panel" class="hidden">
+        <!-- Left: docked list panel -->
+        <div class="list-dock">
+            <div class="list-head">
+                <div class="lh-titles">
+                    <h2 id="garage-title">Garage</h2>
+                    <p id="garage-sub" class="gh-sub">HOMEKONG</p>
+                </div>
+                <button id="btn-search" class="btn-icon" title="Search">&#128269;</button>
+                <button id="btn-close" class="btn-icon" title="Close (ESC)">&times;</button>
+            </div>
+            <div id="search-wrap" class="search-wrap hidden">
+                <input id="search-input" class="search-input" type="text"
+                       placeholder="搜尋 · name / brand / colour / drivetrain / plate" />
+            </div>
+            <div id="vehicle-list" class="vehicle-list"></div>
+        </div>
+
+        <!-- Floating drag-to-rotate hint: bottom-left, just right of the list dock.
+             Shown only while a car is selected (JS toggles .hidden). -->
+        <div id="preview-controls" class="preview-controls hidden">
+            <div class="pc-hint">拖曳旋轉 · Drag to rotate</div>
+        </div>
+
+        <!-- Right: floating action card, overlaid on the live 3D render -->
+        <div id="detail-card" class="detail-card hidden">
+            <div class="dc-head">
+                <div class="dc-name" id="dc-name">Vehicle</div>
+                <div class="dc-plate" id="dc-plate"></div>
+            </div>
+            <div class="dc-meta" id="dc-meta"></div>
+            <div class="dc-perf" id="dc-perf"></div>
+            <div class="section-label">狀態 Condition</div>
+            <div class="dc-stats" id="dc-stats"></div>
+            <div class="dc-mods" id="dc-mods"></div>
+            <div class="dc-finance" id="dc-finance"></div>
+            <div class="dc-actions" id="dc-actions"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HOMEKONG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- data-mode = 'normal' (centered panel) | 'minimal' (left icon rail) -->
+    <div id="overlay" class="overlay hidden" data-mode="normal">
+
+        <!-- ===== NORMAL: centered card grid panel ===== -->
+        <div id="hub" class="hub">
+            <header class="hub-head">
+                <div class="brand">
+                    <span class="brand-mark" id="brand-name">HOME<span class="accent">KONG</span></span>
+                    <span class="brand-tag" id="brand-tag">系統選單 · SYSTEMS</span>
+                </div>
+                <div class="head-actions">
+                    <button id="btn-settings" class="btn-icon" title="Settings"><i class="fa-solid fa-gear"></i></button>
+                    <button id="btn-close" class="btn-icon" title="Close (ESC)"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </header>
+            <main id="hub-body" class="hub-body"></main>
+            <footer class="hub-foot">
+                <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> 移動</span>
+                <span class="hint"><kbd>Enter</kbd> 選擇</span>
+                <span class="hint"><kbd>Esc</kbd> 關閉</span>
+            </footer>
+        </div>
+
+        <!-- ===== MINIMAL: slim left-center icon rail ===== -->
+        <nav id="rail" class="rail">
+            <div class="rail-brand" id="brand-name-rail" title="HOMEKONG">HK</div>
+            <div class="rail-scroll"><div id="rail-items" class="rail-items"></div></div>
+            <div class="rail-foot">
+                <button id="btn-settings-rail" class="rail-btn"><i class="fa-solid fa-gear"></i><span class="rail-label">Settings<span class="rail-zh">設定</span></span></button>
+                <button id="btn-close-rail" class="rail-btn"><i class="fa-solid fa-xmark"></i><span class="rail-label">Close<span class="rail-zh">關閉 · ESC</span></span></button>
+            </div>
+        </nav>
+
+        <!-- Flyout panel (in-hub views: Settings / Laws) — used by BOTH modes.
+             In normal mode it replaces the hub body; in minimal it slides beside the rail. -->
+        <section id="flyout" class="flyout hidden">
+            <header class="flyout-head">
+                <span class="flyout-title" id="flyout-title">HOMEKONG</span>
+                <!-- Squad view lifts its name + action chips up here to free body height. -->
+                <div id="flyout-squad-head" class="flyout-squad-head hidden"></div>
+                <button id="flyout-close" class="btn-icon" title="Close (ESC)"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <main id="settings-body" class="flyout-body hidden"></main>
+            <main id="laws-body" class="flyout-body hidden"></main>
+            <main id="report-body" class="flyout-body hidden"></main>
+            <main id="keybinds-body" class="flyout-body hidden"></main>
+            <main id="squad-body" class="flyout-body hidden"></main>
+        </section>
+    </div>
+
+    <!-- Always-on squad member overlay (top-right HUD). Lives OUTSIDE #overlay so
+         it stays visible while the F5 panel is closed. Populated by squad.js. -->
+    <div id="squad-overlay" class="squad-overlay hidden"></div>
+
+    <script src="app.js"></script>
+    <script src="squad.js"></script>
+</body>
+</html>

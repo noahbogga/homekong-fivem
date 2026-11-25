@@ -1,0 +1,583 @@
+/* ============================================================================
+   hk-drugsell — street-deal dialog
+   Shares the HOMEKONG design language (hk-hub / hk-sportsbetting): #00c8ff
+   structural accent, Inter + JetBrains Mono, layered dark surfaces.
+   Pushed darker + grittier here since it's an illegal-drug script — near-black
+   surfaces, money-green for the deal path, gold for counters, red for danger.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap");
+
+:root {
+    --accent: #00c8ff;
+    --accent-2: #1e90ff;
+    --accent-soft: rgba(0, 200, 255, 0.10);
+    --accent-line: rgba(0, 200, 255, 0.32);
+
+    /* darker than hub/sports — this is back-alley territory */
+    --bg: #05080b;
+    --card: #0a0d11;
+    --elevated: #10151b;
+    --surface: #161d25;
+    --border: #1c242e;
+    --border-soft: rgba(255, 255, 255, 0.05);
+
+    --fg: #e7edf3;
+    --fg-muted: #8493a5;
+    --fg-dim: #566575;
+
+    --money: #00e676;
+    --money-soft: rgba(0, 230, 118, 0.12);
+    --money-line: rgba(0, 230, 118, 0.28);
+
+    --gold: #ffc107;
+    --gold-soft: rgba(255, 193, 7, 0.12);
+    --gold-line: rgba(255, 193, 7, 0.30);
+
+    --red: #ff4757;
+    --red-soft: rgba(255, 71, 87, 0.12);
+    --red-line: rgba(255, 71, 87, 0.30);
+
+    --radius: 14px;
+    --radius-sm: 10px;
+    --font: "Inter", "Noto Sans TC", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body, html {
+    font-family: var(--font);
+    background: transparent !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 50px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
+::-webkit-scrollbar-track { background: transparent; }
+
+#dialog-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 52px;
+}
+
+/* ─── Main Card ─────────────────────────────────────────── */
+.dialog-box {
+    position: relative;
+    background:
+        radial-gradient(130% 80% at 50% -10%, rgba(0, 200, 255, 0.07), transparent 55%),
+        var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0;
+    width: 372px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px var(--border-soft) inset,
+        0 30px 70px -18px rgba(0, 0, 0, 0.85),
+        0 2px 0 rgba(255, 255, 255, 0.03) inset;
+    animation: dialogEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* top hairline of accent, like the hub panels */
+.dialog-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-line), transparent);
+    z-index: 3;
+}
+
+/* subtle vignette so it doesn't read as a clean corporate panel */
+.box-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 120% at 50% 120%, rgba(0, 0, 0, 0.45), transparent 60%);
+    mix-blend-mode: multiply;
+    z-index: 0;
+}
+
+@keyframes dialogEnter {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Header ────────────────────────────────────────────── */
+.dialog-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
+}
+
+.npc-avatar {
+    width: 42px;
+    height: 42px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-soft);
+}
+
+.avatar-ring {
+    position: absolute;
+    inset: -1px;
+    border-radius: 12px;
+    padding: 1px;
+    background: conic-gradient(from 180deg, var(--accent-line), transparent 40%, transparent 60%, var(--accent-line));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: ringRotate 4s linear infinite;
+}
+
+@keyframes ringRotate { to { transform: rotate(360deg); } }
+
+.npc-avatar i {
+    color: var(--accent);
+    font-size: 16px;
+    z-index: 1;
+}
+
+.npc-info { flex: 1; min-width: 0; }
+
+.npc-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--fg-dim);
+}
+
+.npc-text {
+    color: var(--fg);
+    font-size: 13px;
+    line-height: 1.4;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+.close-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: var(--fg-dim);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+}
+
+.close-btn:hover {
+    background: var(--red-soft);
+    border-color: var(--red-line);
+    color: var(--red);
+}
+
+/* ─── Sections ──────────────────────────────────────────── */
+.dialog-section {
+    position: relative;
+    z-index: 1;
+    padding: 16px 18px 18px;
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-soft);
+}
+
+.divider-text {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--fg-dim);
+    white-space: nowrap;
+}
+
+/* ─── Drug Grid ─────────────────────────────────────────── */
+.drug-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-height: 264px;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.drug-card {
+    position: relative;
+    background: var(--elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.16s, background 0.16s;
+    text-align: center;
+    overflow: hidden;
+}
+
+.drug-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    background: radial-gradient(120% 90% at 50% 0%, var(--card-color, rgba(0,200,255,0.18)), transparent 65%);
+    transition: opacity 0.28s;
+    pointer-events: none;
+}
+
+.drug-card:hover {
+    border-color: var(--accent-line);
+    background: var(--surface);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.7);
+}
+
+.drug-card:hover::before { opacity: 1; }
+
+.drug-card i {
+    font-size: 22px;
+    margin-bottom: 8px;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.drug-card .drug-name {
+    color: var(--fg);
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+}
+
+.drug-card .drug-qty {
+    font-family: var(--mono);
+    color: var(--fg-dim);
+    font-size: 10px;
+    margin-top: 3px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Deal Card ─────────────────────────────────────────── */
+.deal-card {
+    background: var(--elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.deal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.deal-drug {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.deal-drug i { font-size: 15px; }
+
+.deal-drug span {
+    color: var(--fg);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.deal-qty {
+    background: var(--money-soft);
+    border: 1px solid var(--money-line);
+    border-radius: 7px;
+    padding: 3px 9px;
+}
+
+.deal-qty span {
+    font-family: var(--mono);
+    color: var(--money);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.deal-inventory {
+    display: block;
+    margin-top: 9px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    color: var(--fg-dim);
+}
+
+/* ─── Price Slider ──────────────────────────────────────── */
+.price-negotiation { margin-bottom: 16px; }
+
+.price-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+}
+
+.price-label {
+    color: var(--fg-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.price-per {
+    font-family: var(--mono);
+    color: var(--fg-dim);
+    font-size: 10px;
+}
+
+.slider-container { position: relative; padding: 0 2px; }
+
+#price-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#price-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 4px rgba(255, 255, 255, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.2s;
+}
+
+#price-slider::-webkit-slider-thumb:hover {
+    box-shadow:
+        0 0 0 6px rgba(255, 255, 255, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.slider-markers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 7px;
+}
+
+.marker-low, .marker-high {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--fg-dim);
+}
+
+.price-display {
+    text-align: center;
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--money);
+    text-shadow: 0 0 22px rgba(0, 230, 118, 0.35);
+    letter-spacing: -0.5px;
+}
+
+.price-currency {
+    font-size: 18px;
+    opacity: 0.6;
+    margin-right: 2px;
+}
+
+/* ─── Action Button ─────────────────────────────────────── */
+.action-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--money-soft);
+    border: 1px solid var(--money-line);
+    border-radius: var(--radius-sm);
+    color: var(--money);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: rgba(0, 230, 118, 0.18);
+    border-color: var(--money);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px -6px rgba(0, 230, 118, 0.35);
+}
+
+.action-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.action-btn i { font-size: 13px; }
+
+/* ─── Reaction ──────────────────────────────────────────── */
+.npc-reaction {
+    text-align: center;
+    padding: 22px 12px;
+}
+
+.reaction-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.reaction-icon.success {
+    background: var(--money-soft);
+    border: 1px solid var(--money-line);
+    color: var(--money);
+    box-shadow: 0 0 24px -4px rgba(0, 230, 118, 0.4);
+}
+
+.reaction-icon.failed {
+    background: var(--red-soft);
+    border: 1px solid var(--red-line);
+    color: var(--red);
+    box-shadow: 0 0 24px -4px rgba(255, 71, 87, 0.4);
+}
+
+.reaction-icon.counter {
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+    color: var(--gold);
+    box-shadow: 0 0 24px -4px rgba(255, 193, 7, 0.4);
+}
+
+.npc-reaction p {
+    color: var(--fg);
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+/* ─── Counter Offer ─────────────────────────────────────── */
+.counter-msg {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--fg);
+    font-size: 14px;
+    font-style: italic;
+}
+
+.counter-detail {
+    display: block;
+    margin-bottom: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 700;
+    font-style: normal;
+}
+
+.counter-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.counter-btn {
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.counter-btn.accept {
+    background: var(--money-soft);
+    border: 1px solid var(--money-line);
+    color: var(--money);
+}
+
+.counter-btn.accept:hover {
+    background: rgba(0, 230, 118, 0.2);
+    border-color: var(--money);
+}
+
+.counter-btn.reject {
+    background: var(--red-soft);
+    border: 1px solid var(--red-line);
+    color: var(--red);
+}
+
+.counter-btn.reject:hover {
+    background: rgba(255, 71, 87, 0.2);
+    border-color: var(--red);
+}
+
+.counter-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

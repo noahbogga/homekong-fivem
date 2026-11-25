@@ -1,0 +1,88 @@
+================================================================================
+  HOMEKONG VEHICLE ENHANCEMENT SYSTEM — FINAL DEVELOPMENT PLAN
+  Generated: 2026-06-02
+================================================================================
+
+ARCHITECTURE:
+─────────────
+  hk-vehlib          = LIBRARY (shared utility layer)
+                        Exports functions that ANY script can call.
+                        Does NOT run features itself — it provides the TOOLS.
+                        e.g. vehlib.setTorque(veh, mult)
+                             vehlib.getWheelSpin(veh, wheel)
+                             vehlib.applyLift(veh, force, offset)
+                             vehlib.capHandling(veh, field, mult)
+                             vehlib.restoreHandling(veh)
+                             vehlib.detectState(veh) → {rpm, gear, speed, ...}
+
+  hk-racecam         = CAMERA + VISUAL SUSPENSION (uses hk-vehlib)
+                        Chase cam, airborne cam, drag cam
+                        + launch squat, brake dive, air suspension visuals
+
+  hk-vehdynamic      = HANDLING FEATURES (uses hk-vehlib)
+                        Launch control, TC, ABS, drift mode, wheelie,
+                        downforce, ESC, DRS — the "Dynamic" product.
+
+  This is the same pattern LegacyDMA uses:
+    - Core library (shared natives wrapper + state tracking)
+    - CHASER (their camera product, uses the library)
+    - Dynamic (their handling product, uses the library)
+
+================================================================================
+
+MUST HAVE (Core features, build first):
+────────────────────────────────────────
+  [A3] Launch Control
+  [A4] Rev Limiter (replacement for the legacy gearbox resource)
+  [D1] Traction Control (TC)
+  [D2] ABS Simulation
+  [D3] Drift Mode / Easy Drift (toggle)
+  [D5] Dynamic AWD Simulation (faked via traction bias)
+  [E1] Stability Control (ESC)
+  [F1] Controlled Wheelie System (replaces CF_CAN_WHEELIE)
+  [F2] Drag Launch Headlift
+  [G1] Speed-Dependent Downforce
+  [G2] Active Aero / DRS
+
+INTEGRATE INTO hk-racecam (visual/suspension, not separate resource):
+─────────────────────────────────────────────────────────────────────
+  [C1] Active Suspension / Ride Height Modes
+  [C2] Launch Squat
+  [C3] Brake Dive Control
+  [C4] Air Suspension Simulation
+
+FUTURE DEVELOPMENT (build later):
+──────────────────────────────────
+  [A1] Turbo / Supercharger Boost
+  [A6] Power Modes (Eco / Sport / Race)
+  [E2] Speed-Sensitive Steering
+
+CHECK COMPATIBILITY FIRST (may conflict with the legacy gearbox / jim-mechanic):
+────────────────────────────────────────────────────────────────────────
+  [A7] Torque Curve Simulation
+  [B1] Shift Feel (DCT vs Manual)
+  [B2] Sequential Shift Simulation
+  [B3] Gear-Dependent Behavior
+
+NOT NEEDED:
+───────────
+  [A2] Anti-Lag (handled by jim-mechanic/lambra-tunerChipV2)
+  [A5] NOS (handled by jim-mechanic)
+  [D4] Tire Wear (no tire break on server)
+  [H1] Engine Damage → Power Loss
+  [H2] Wheel Damage → Grip Loss
+  [H3] Brake Fade
+
+WORKAROUNDS TO IMPLEMENT:
+─────────────────────────
+  [X3] Per-Wheel Torque → brake individual spinning wheels
+  [X6] Differential Sim → traction bias + brake-based torque vectoring
+
+PREREQUISITE (handling.meta fix):
+─────────────────────────────────
+  Remove strAdvancedFlags 402 from custom muscle car handling.meta
+  (enables [F1] and [F2] to work without the 180-snap)
+
+================================================================================
+  END — Ready to build when you are.
+================================================================================

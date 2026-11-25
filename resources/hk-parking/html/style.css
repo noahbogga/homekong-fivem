@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════════════════════════
+   HK-GARAGE UI — HOMEKONG
+   Left dock (sectioned list) + open right side where the live 3D
+   vehicle renders; a floating card overlays the render.
+   supastarter dark surfaces + HOMEKONG cyan accent.
+   ═══════════════════════════════════════════════════════════════ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
+
+:root {
+    --accent: #00c8ff;
+    --accent-2: #1e90ff;
+    --accent-soft: rgba(0, 200, 255, 0.13);
+    --accent-line: rgba(0, 200, 255, 0.38);
+
+    --bg: #070d12;
+    --card: #0d1116;
+    --muted: #020817;
+    --elevated: #141b23;
+    --border: #2b303d;
+    --border-soft: rgba(255, 255, 255, 0.06);
+
+    --fg: #e9eef3;
+    --fg-muted: #94a3b8;
+    --fg-dim: #64748b;
+
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { background: transparent; font-family: var(--font); color: var(--fg); overflow: hidden; user-select: none; }
+
+.hidden { display: none !important; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 50px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* #panel is a full-screen transparent layer; children position themselves.
+   The right side is left open so the 3D render (game camera) shows through. */
+#panel { position: fixed; inset: 0; z-index: 1000; }
+
+/* ── Left dock ──────────────────────────────────────────────── */
+.list-dock {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(100deg, var(--bg) 78%, rgba(7, 13, 18, 0.86));
+    border-right: 1px solid var(--border);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+.list-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.lh-titles { display: flex; flex-direction: column; }
+.list-head h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.gh-sub { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
+.list-head .btn-icon { margin-left: auto; }
+
+.btn-icon {
+    background: none; border: none; color: var(--fg-dim); font-size: 24px;
+    line-height: 1; cursor: pointer; padding: 2px 8px; border-radius: var(--radius-sm); transition: all 0.15s;
+}
+.btn-icon:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }
+
+/* Search bar (toggled by the magnifier in the header) */
+.search-wrap { padding: 0 16px 10px; }
+.search-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--fg);
+    font-size: 13px;
+    outline: none;
+}
+.search-input:focus { border-color: var(--accent-line); }
+.search-input::placeholder { color: var(--fg-dim); }
+
+.vehicle-list { flex: 1; overflow-y: auto; padding: 10px; }
+
+/* ── List sections (collapsible) ────────────────────────────── */
+.sec-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 8px 6px;
+    cursor: pointer;
+    user-select: none;
+}
+.sec-head .sec-caret { font-size: 10px; color: var(--fg-dim); transition: transform 0.15s; }
+.sec-head.collapsed .sec-caret { transform: rotate(-90deg); }
+.sec-head .sec-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--fg-muted);
+}
+.sec-head .sec-count {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--fg-dim);
+    background: var(--muted);
+    border: 1px solid var(--border-soft);
+    padding: 1px 7px;
+    border-radius: 20px;
+}
+.sec-head.here .sec-title { color: var(--accent); }
+.sec-head.impound .sec-title { color: var(--red); }
+
+.sec-body { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.sec-body.collapsed { display: none; }
+
+/* ── Vehicle row ────────────────────────────────────────────── */
+.veh-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+}
+.veh-row:hover { background: rgba(255, 255, 255, 0.04); }
+.veh-row.active { background: var(--accent-soft); border-color: var(--accent-line); }
+
+/* greyed rows (other garages / street): dimmed, only locate is allowed */
+.veh-row.dim { opacity: 0.55; }
+.veh-row.dim:hover { opacity: 0.8; }
+
+.vr-icon {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    background: var(--muted); border: 1px solid var(--border-soft); border-radius: 9px;
+    font-size: 17px; color: var(--accent); flex-shrink: 0;
+}
+.veh-row.dim .vr-icon { color: var(--fg-muted); }
+
+.vr-body { flex: 1; min-width: 0; }
+.vr-name { font-size: 14px; font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vr-brand { font-size: 11px; color: var(--fg-muted); margin-top: 1px; }
+.vr-plate { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; margin-top: 2px; }
+.vr-where { font-size: 10px; color: var(--fg-dim); margin-top: 2px; }
+
+/* Removed-model car: kept in the list but visibly unavailable. */
+.vr-gone { font-size: 10px; color: #f0776c; margin-top: 3px; font-weight: 600; }
+.veh-row.unavailable { opacity: 0.45; }
+.veh-row.unavailable:hover { opacity: 0.6; }
+.veh-row.unavailable .vr-name { text-decoration: line-through; text-decoration-color: rgba(240,119,108,0.6); }
+.btn-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.6); pointer-events: none; }
+
+.vr-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.vr-dot.s-garaged { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.vr-dot.s-out { background: var(--fg-dim); }
+.vr-dot.s-parked { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.vr-dot.s-impound { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.vr-dot.s-depot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+
+/* locate button on dim rows */
+.vr-locate {
+    flex-shrink: 0;
+    background: var(--muted-2, rgba(255,255,255,0.08));
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-size: 11px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.vr-locate:hover { border-color: var(--accent-line); color: var(--accent); }
+
+/* ── Floating detail card (right side, over the 3D render) ───── */
+.detail-card {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    bottom: 24px;              /* taller — spans most of the right edge */
+    width: 340px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;   /* card itself never scrolls — only .dc-mods does */
+    /* NOTE: no backdrop-filter — in FiveM CEF it renders as a solid black box
+       (nothing behind the DOM layer to blur). Use a plain translucent bg so the
+       game shows through instead. */
+    background: rgba(11, 15, 20, 0.90);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+    animation: cardIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+
+/* Fixed (non-scrolling) card regions — only .dc-mods scrolls. */
+.dc-head, .dc-meta, .preview-hint, .dc-perf, .dc-stats, .dc-finance,
+.detail-card > .section-label { flex-shrink: 0; }
+
+.dc-head { display: flex; align-items: flex-start; gap: 12px; }
+.dc-name { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; flex: 1; }
+.dc-brand { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--accent); margin-bottom: 2px; }
+.dc-plate {
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid var(--accent-line);
+    padding: 4px 10px; border-radius: 6px; letter-spacing: 0.06em; white-space: nowrap;
+}
+.dc-meta { font-size: 12px; color: var(--fg-muted); margin: 6px 0 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+.dc-meta .dm-status { color: var(--accent); font-weight: 600; }
+.dm-tier {
+    font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 5px; color: #04121a;
+}
+.dm-tier.tier-street { background: var(--accent); }   /* blue  (legacy word tiers) */
+.dm-tier.tier-sport  { background: var(--yellow); }   /* yellow */
+.dm-tier.tier-super  { background: var(--red); }      /* red */
+/* hk-race now returns letter tiers S/A/B (config names = {'B','A','S'}, S=fastest).
+   getVehicleTier -> t.name -> NUI className "tier-"..lower. Map them: S=red (fastest),
+   A=yellow (mid), B=blue (slowest). */
+.dm-tier.tier-s { background: var(--red); }      /* S = fastest */
+.dm-tier.tier-a { background: var(--yellow); }   /* A = mid */
+.dm-tier.tier-b { background: var(--accent); }   /* B = slowest */
+
+/* Drive layout badge (RWD/AWD/FWD) — outlined, not solid, so it reads as a
+   different axis from the solid tier chip sitting beside it. Colour = the
+   handler's own class bucket: RWD red, AWD cyan, FWD green. */
+.dm-drive {
+    font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 1px 7px; border-radius: 5px; background: transparent;
+    border: 1px solid currentColor;
+}
+.dm-drive.drive-rwd { color: var(--red); }
+.dm-drive.drive-awd { color: var(--accent); }
+.dm-drive.drive-fwd { color: var(--green); }
+
+/* Floating preview controls — bottom-left, just right of the list dock */
+.preview-controls {
+    position: absolute;
+    left: 376px;              /* list dock is 360 + 16 gap */
+    bottom: 26px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 60;
+}
+.pc-hint {
+    font-size: 12px; color: var(--fg-muted);
+    background: rgba(11, 15, 20, 0.7);
+    padding: 6px 12px; border-radius: 8px;
+    display: flex; align-items: center; gap: 6px;
+}
+.pc-hint::before { content: "↻"; color: var(--accent); font-size: 13px; }
+
+.section-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--fg-dim); margin-bottom: 12px;
+}
+
+/* Performance bars (accel/top speed/braking/traction) — bars only, no numbers */
+.dc-perf:empty { display: none; }
+.dc-perf { margin-bottom: 18px; }
+.perf-row { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
+.perf-label { width: 110px; font-size: 11px; color: var(--fg-muted); }
+.perf-bar { flex: 1; height: 8px; background: var(--muted); border-radius: 50px; overflow: hidden; }
+.perf-bar span { display: block; height: 100%; border-radius: 50px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent)); transition: width 0.4s ease; }
+
+.dc-stats { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.dc-stat { display: flex; align-items: center; gap: 12px; }
+.ds-label { width: 54px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); font-weight: 600; }
+.ds-val { width: 40px; text-align: right; font-family: var(--mono); font-size: 12px; }
+.ds-bar { flex: 1; height: 8px; background: var(--muted); border-radius: 50px; overflow: hidden; }
+.ds-bar span { display: block; height: 100%; border-radius: 50px; transition: width 0.4s ease; }
+.ds-bar span.bar-green { background: linear-gradient(90deg, #10b981, var(--green)); }
+.ds-bar span.bar-yellow { background: linear-gradient(90deg, #d97706, var(--yellow)); }
+.ds-bar span.bar-red { background: linear-gradient(90deg, #dc2626, var(--red)); }
+
+.dc-finance {
+    font-size: 12px; color: var(--fg-muted); background: var(--muted);
+    border: 1px solid var(--border-soft); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 18px;
+}
+.dc-finance.owed { color: var(--yellow); border-color: rgba(251, 191, 36, 0.3); }
+.dc-finance:empty { display: none; }
+
+/* Installed mods panel — NFS-style grouped sections */
+/* Mods is the ONLY scrollable region — it grows to fill leftover space and
+   scrolls internally when the mod list is long, so the buttons never move. */
+.dc-mods { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-bottom: 12px; padding-right: 8px; }
+.mods-empty { font-size: 12px; color: var(--fg-dim); }
+.mod-group { margin-bottom: 14px; }
+.mod-group-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-soft);
+}
+.mod-line {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 3px 0;
+}
+.ml-name { font-size: 12px; color: var(--fg-muted); }
+.ml-val { font-size: 12px; font-family: var(--mono); font-weight: 700; color: var(--fg); }
+
+.dc-actions { display: flex; gap: 10px; padding-top: 10px; flex-shrink: 0;
+    border-top: 1px solid var(--border-soft); }
+.btn {
+    flex: 1; padding: 13px; border: none; border-radius: 10px; font-family: var(--font);
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary {
+    color: #04121a; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 4px 16px var(--accent-soft);
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-line); }
+.btn-primary:disabled { background: var(--elevated); color: var(--fg-dim); cursor: not-allowed; box-shadow: none; }
+.btn-ghost { color: var(--fg); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); flex: 0 0 auto; padding: 13px 16px; }
+.btn-ghost:hover { border-color: var(--accent-line); color: var(--accent); }
+/* ADMIN delete (two-step): idle = muted red outline; armed = solid red pulse. */
+.btn-danger { color: #ff6b6b; background: rgba(255, 60, 60, 0.08); border: 1px solid rgba(255, 80, 80, 0.4); flex: 0 0 auto; padding: 13px 16px; }
+.btn-danger:hover { border-color: #ff5050; background: rgba(255, 60, 60, 0.16); }
+.btn-danger-armed { color: #fff; background: linear-gradient(135deg, #ff3b3b, #c81e1e); border-color: #ff3b3b; box-shadow: 0 0 18px rgba(255, 60, 60, 0.5); animation: dangerPulse 0.9s ease-in-out infinite; }
+@keyframes dangerPulse { 0%,100% { box-shadow: 0 0 12px rgba(255,60,60,0.4); } 50% { box-shadow: 0 0 22px rgba(255,60,60,0.75); } }

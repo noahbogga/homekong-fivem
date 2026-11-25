@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Cam Debug</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Radial speed-blur overlay. Fullscreen WebGL canvas pinned BEHIND the
+         debug menu (z-index:-1) so it's always available to render the blur
+         while the menu still shows on top. Driven by blur.js via NUI messages. -->
+    <canvas id="blur-canvas"></canvas>
+
+    <div id="debug-menu" class="hidden">
+        <div class="menu-header">
+            <h2>Race Cam Debug Menu</h2>
+            <button id="close-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div class="viewmode-bar">
+            <span class="viewmode-label">Editing V-mode:</span>
+            <span id="viewmode-badge" class="viewmode-badge">MEDIUM (V3)</span>
+            <span class="viewmode-hint">press V in-game to switch · reopen menu to refresh</span>
+        </div>
+
+        <div class="preset-tabs">
+            <button class="tab-btn active" data-preset="chase">Chase</button>
+            <button class="tab-btn" data-preset="hood">Hood</button>
+        </div>
+
+        <div class="controls-container">
+            <!-- CONTROLS_PLACEHOLDER -->
+        </div>
+
+        <div class="menu-footer">
+            <button id="refresh-btn" class="btn btn-secondary">Refresh Camera</button>
+            <button id="apply-btn" class="btn btn-primary">Apply (Me Only)</button>
+            <button id="broadcast-btn" class="btn btn-info">Broadcast to All</button>
+            <button id="save-btn" class="btn btn-success">Save to Config</button>
+            <button id="reset-btn" class="btn btn-warning">Reset to Saved</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="blur.js"></script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --accent-color: #00c8ff;
+}
+
+body {
+    background: transparent;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ===== Panel shell ===== */
+#panel {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.craft-window {
+    width: 960px;
+    max-width: 92vw;
+    height: 680px;
+    max-height: 88vh;
+    background: rgba(15, 15, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: pop 0.18s ease;
+}
+
+@keyframes pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===== Header ===== */
+.craft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+}
+
+.craft-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.ch-sub {
+    font-size: 12px;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+    opacity: 0.85;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 10px;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.btn-icon:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Body split ===== */
+/* ----- Category tabs ----- */
+.cat-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px 22px 0;
+    flex-wrap: wrap;
+}
+.cat-tab {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #bbb;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+}
+.cat-tab:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.cat-tab.active {
+    background: color-mix(in srgb, var(--accent-color) 16%, transparent);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+/* greyed-out (below rank) repair tab: visible but not clickable */
+.cat-tab.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: #777;
+}
+.cat-tab.locked:hover { background: rgba(255,255,255,0.04); color: #777; }
+
+/* weapon quality bar in the repair list */
+.q-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+.q-fill { height: 100%; background: #2ecc71; border-radius: 3px; transition: width 0.2s; }
+.q-fill.mid { background: #f1c40f; }
+.q-fill.low { background: #e74c3c; }
+
+/* target-quality slider + readout in repair detail */
+.q-slider {
+    width: 100%;
+    margin: 6px 0 4px;
+    accent-color: var(--accent-color);
+}
+.q-readout {
+    font-size: 14px;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.craft-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    min-height: 0;
+}
+
+/* ----- Left: item list ----- */
+.item-list {
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    margin-bottom: 4px;
+}
+
+.item-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.item-row.active {
+    background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+    border-color: var(--accent-color);
+}
+
+.item-row img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+}
+
+.item-row .ir-fallback {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    font-size: 18px;
+    color: var(--accent-color);
+    flex-shrink: 0;
+}
+
+.item-row .ir-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #eee;
+}
+
+.item-row .ir-amt {
+    font-size: 11px;
+    color: #888;
+}
+
+.item-row .ir-craftable {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2ecc71;
+    box-shadow: 0 0 6px #2ecc71;
+    flex-shrink: 0;
+}
+
+.item-row .ir-craftable.no {
+    background: #555;
+    box-shadow: none;
+}
+
+/* ----- Right: detail ----- */
+.detail {
+    padding: 18px 22px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    /* header row (icon + title) sits inline so nothing pushes below the fold */
+}
+
+.detail-empty {
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-hint {
+    color: #666;
+    font-size: 14px;
+}
+
+/* preview icon: ~60% smaller (88 -> 34) and inline beside the title */
+.detail-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    margin: 0;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+}
+
+.detail-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.detail h3 {
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.detail .d-desc {
+    font-size: 12.5px;
+    color: #aaa;
+    line-height: 1.45;
+    margin-bottom: 14px;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+/* material rows */
+.mat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.mat-row img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.mat-row .m-fallback {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px; font-size: 13px; color: #888;
+    flex-shrink: 0;
+}
+
+.mat-row .m-name {
+    font-size: 13px;
+    color: #ddd;
+}
+
+.mat-row .m-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.mat-row .m-count.ok  { color: #2ecc71; }
+.mat-row .m-count.bad { color: #ff5555; }
+
+/* blueprint badge */
+.bp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border: 1px solid;
+}
+
+.bp-badge.have {
+    color: #2ecc71;
+    border-color: rgba(46, 204, 113, 0.4);
+    background: rgba(46, 204, 113, 0.08);
+}
+
+.bp-badge.missing {
+    color: #ff9f43;
+    border-color: rgba(255, 159, 67, 0.4);
+    background: rgba(255, 159, 67, 0.08);
+}
+
+/* craft button */
+.btn-craft {
+    margin-top: auto;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    color: #06121a;
+    background: var(--accent-color);
+    transition: all 0.15s;
+}
+
+.btn-craft:hover:not(:disabled) {
+    filter: brightness(1.12);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--accent-color) 55%, transparent);
+}
+
+.btn-craft:disabled {
+    background: #2a2a30;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* scrollbars */
+.item-list::-webkit-scrollbar,
+.detail::-webkit-scrollbar { width: 5px; }
+.item-list::-webkit-scrollbar-thumb,
+.detail::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.item-list::-webkit-scrollbar-track,
+.detail::-webkit-scrollbar-track { background: transparent; }

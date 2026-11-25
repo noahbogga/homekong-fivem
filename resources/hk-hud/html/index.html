@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hk-hud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Status icon cluster (vertical, left-center). Theme class on #hud. -->
+    <div id="hud" class="theme-hk">
+        <div id="status" class="status-cluster"></div>
+        <!-- External buff/enhancement pills (ps-hud contract; empty unless a
+             resource fires hud:client:BuffEffect / EnhancementEffect). -->
+        <div id="external-status" class="external-status"></div>
+    </div>
+
+    <!-- Compass — top-centre heading bar (degrees + bearings + streets). -->
+    <div id="compass" class="compass hidden">
+        <div class="cmp-bar">
+            <div class="cmp-pointer" id="cmp-pointer">˅</div>
+            <svg class="cmp-ticks" id="cmp-ticks" preserveAspectRatio="none"></svg>
+            <svg class="cmp-bearing" id="cmp-bearing" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="cmp-degrees" id="cmp-degrees"></div>
+        <div class="cmp-streets"><span id="cmp-s1"></span><span id="cmp-s2"></span></div>
+    </div>
+
+    <!-- Voice/mic dock — bottom-right, separate from the status cluster. -->
+    <div id="voice-dock" class="voice-dock theme-hk"></div>
+
+
+    <!-- Money widget (top-right): balance line (/cash /bank) + change popups
+         (green +$ / red -$) that appear automatically on every money change. -->
+    <div id="money-toast" class="money-toast hidden"></div>
+    <div id="money-change" class="money-change"></div>
+
+    <!-- Crosshair (centered; shown only while free-aiming). Drawn with an SVG. -->
+    <div id="crosshair" class="crosshair hidden">
+        <svg id="xhair-svg" viewBox="-50 -50 100 100" width="100" height="100"></svg>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

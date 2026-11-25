@@ -1,0 +1,8 @@
+-- hk-handling :: client/_shared.lua  (UNUSED — not loaded)
+--
+-- Attempted to share the one-line `bind` export-wrapper helper here as a global
+-- (HKBind), but a global defined in one client script is not reliably visible to
+-- sibling scripts at their load time in this FiveM build — every module errored
+-- "attempt to call a nil value (global 'HKBind')" on load. Reverted: each module
+-- keeps its own `local function bind(...)` (trivial, bulletproof, no load-order
+-- dependency). This file is intentionally empty and removed from the manifest.

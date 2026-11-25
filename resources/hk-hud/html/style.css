@@ -1,0 +1,301 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=JetBrains+Mono:wght@700&display=swap");
+
+/* NOTE: FiveM CEF is an OLD Chromium — NO oklch(), color-mix(), @property, or
+   nested CSS. Plain hex/rgba only (this is why ps-hud renders and my first
+   attempt didn't). Icons = Font Awesome webfont (CEF-safe). */
+:root {
+    --card:      rgba(20, 24, 30, 0.80);
+    --card-solid:#14181e;
+    --border:    rgba(255, 255, 255, 0.10);
+    --border-hi: rgba(255, 255, 255, 0.20);
+    --fg:        #e9eef3;
+    --track:     rgba(255, 255, 255, 0.10);
+    --accent:    #00c8ff;
+    --gold:      #f5c518;   /* HOMEKONG gold */
+    --red:       #f87171;
+    --radius:    12px;
+    --font: "Inter", system-ui, sans-serif;
+    --mono: "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: transparent; overflow: hidden; font-family: var(--font); user-select: none; }
+.hidden { display: none !important; }
+
+/* Cluster sits ABOVE the minimap (bottom-left). The GTA minimap occupies
+   roughly the bottom ~230px, so clear it. Raise `bottom` to move icons up. */
+/* Status cluster position. Default = vertical column at left-center. */
+#hud { position: fixed; z-index: 50; }
+#hud[data-pos="left-center"] {
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+#hud[data-pos="bottom-left"] { left: 24px; bottom: 245px; }
+
+.status-cluster {
+    display: flex;
+    flex-direction: column;   /* vertical */
+    align-items: center;
+    gap: 9px;
+}
+/* bottom-left variant keeps the old horizontal wrap */
+#hud[data-pos="bottom-left"] .status-cluster {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    max-width: 340px;
+}
+
+/* ---- Icon cell (shared) ---- */
+.icon-cell {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    --c: #00c8ff;
+    /* Animate visibility: fade + scale + COLLAPSE (height/margin) so remaining
+       icons smoothly slide to re-center. Transitions instead of display:none. */
+    overflow: hidden;
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 200ms ease, transform 200ms ease,
+                height 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                width 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                margin 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* collapsed/off state — fade out + shrink height (vertical) / width (row) to 0 */
+.icon-cell.is-off {
+    opacity: 0;
+    transform: scale(0.6);
+    height: 0;
+    width: 0;
+    margin: -4.5px 0;   /* pull neighbours together (gap is 9px) */
+    pointer-events: none;
+}
+/* in the horizontal bottom-left variant, collapse width + horizontal margin */
+#hud[data-pos="bottom-left"] .icon-cell.is-off { height: 0; width: 0; margin: 0 -4.5px; }
+
+.icon-cell .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.icon-cell .ring-bg { fill: none; stroke: var(--track); stroke-width: 2.6; }
+.icon-cell .ring-fg {
+    fill: none;
+    stroke: var(--c);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray 320ms ease;
+}
+
+.icon-cell .glyph {
+    z-index: 1;
+    font-size: 17px;
+    line-height: 1;
+    color: var(--c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-cell .glyph i { color: var(--c); }
+
+/* warn: pulse red */
+.icon-cell.warn { --c: #f87171; }
+.icon-cell.warn .glyph { animation: warnPulse 1.1s ease-in-out infinite; }
+@keyframes warnPulse { 50% { opacity: 0.35; } }
+
+/* active: subtle glow */
+.icon-cell.active .glyph { text-shadow: 0 0 8px var(--c); }
+.icon-cell.active .beam { opacity: 1; }
+
+/* ---- Border beam: a spinning conic glow clipped to the border ----
+   Uses a rotating pseudo via background-image + webkit mask (CEF supports this;
+   no @property, so we animate a child's rotation instead of an angle var). */
+.icon-cell .beam {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    pointer-events: none;
+}
+.icon-cell .beam::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 150%; height: 150%;
+    background: conic-gradient(transparent 0deg, transparent 250deg, var(--c) 320deg, transparent 360deg);
+    transform-origin: 0 0;
+    animation: beamSpin 3s linear infinite;
+}
+.icon-cell .beam::after {
+    /* mask hole so only a thin border rim of the beam shows */
+    content: "";
+    position: absolute;
+    inset: 1.4px;
+    border-radius: inherit;
+    background: var(--card-solid);
+}
+@keyframes beamSpin { to { transform: rotate(360deg); } }
+
+/* ============ THEME: HK (dark-glass) ============ */
+.theme-hk .icon-cell {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.theme-hk .icon-cell .ring { inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); }
+
+/* ============ THEME: Legacy (ps-hud rings) ============
+   Same 45px cell footprint as HK so the vertical column stays aligned; just a
+   transparent cell with a full-bleed ring (no card, no beam). The ring uses the
+   whole cell (inset 0) with a thicker stroke, like ps-hud. */
+.theme-legacy .icon-cell {
+    background: transparent; border: none; box-shadow: none;
+}
+.theme-legacy .icon-cell .ring { inset: 0; width: 100%; height: 100%; }
+.theme-legacy .icon-cell .ring-bg { stroke: rgba(0, 0, 0, 0.55); stroke-width: 3.4; }
+.theme-legacy .icon-cell .ring-fg { stroke-width: 3.4; filter: none; }
+.theme-legacy .icon-cell .glyph { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.85); }
+.theme-legacy .icon-cell .glyph i { color: #fff; }
+.theme-legacy .icon-cell .beam { display: none; }
+
+/* ---- Money toast ---- */
+.money-toast {
+    position: fixed; top: 20px; right: 24px; z-index: 60;
+    background: var(--card-solid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 18px;
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 16px; font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: moneyIn 220ms ease-out;
+}
+@keyframes moneyIn { from { opacity: 0; transform: translateY(-10px) scale(0.96); } }
+
+/* ---- Crosshair (centered overlay, aim-only) ---- */
+.crosshair {
+    position: fixed;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+    pointer-events: none;
+}
+.crosshair svg {
+    display: block;
+    overflow: visible;
+    transform-origin: 50% 50%;
+    transition: opacity 90ms ease, transform 110ms ease;
+}
+/* black outline copies drawn under strokes for contrast on any background */
+.crosshair svg .ol { paint-order: stroke; }
+.crosshair svg line.ol { filter: drop-shadow(0 0 1px rgba(0,0,0,0.9)); }
+.crosshair svg circle.ol { filter: drop-shadow(0 0 1px rgba(0,0,0,0.9)); }
+.crosshair svg .oldot { filter: drop-shadow(0 0 1.2px rgba(0,0,0,0.95)); }
+
+/* ---- Voice/mic dock (bottom-right, separate from left status cluster) ---- */
+.voice-dock {
+    position: fixed;
+    right: 22px;
+    bottom: 28px;
+    z-index: 50;
+    display: flex;
+}
+
+/* NOS purge — fast cyan pulse on the nitro icon glyph + ring, distinct from
+   the steady "active/boosting" glow. */
+.icon-cell.purge .glyph,
+.icon-cell.purge .ring-fg { animation: nosPurgePulse 0.4s ease-in-out infinite; }
+.icon-cell.purge .glyph { text-shadow: 0 0 10px var(--c); }
+@keyframes nosPurgePulse { 50% { opacity: 0.3; } }
+
+/* ---- External buff/enhancement pills (ps-hud contract) ---- */
+.external-status { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.external-status:empty { display: none; }
+.ext-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--card, rgba(20,24,30,0.8));
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px; padding: 6px 9px;
+    --c: #00c8ff;
+}
+.ext-pill i { color: var(--c); font-size: 14px; width: 16px; text-align: center; }
+.ext-bar { flex: 1; height: 4px; min-width: 40px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; }
+.ext-bar > span { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+
+/* (Minimap border layer removed — the streamed circle/square mask provides the
+   map's own edge, which is inherently bound to the map render at any resolution.) */
+
+/* ---- Compass (top-centre heading bar) ---- */
+.compass {
+    position: fixed;
+    top: 1.2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26vh;
+    z-index: 45;
+    pointer-events: none;
+    text-align: center;
+    font-family: var(--font, "Inter", sans-serif);
+}
+.cmp-bar { position: relative; width: 100%; height: 3.4vh; }
+.cmp-ticks   { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cmp-bearing { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cmp-pointer {
+    position: absolute; left: 50%; top: -0.9vh; transform: translateX(-50%);
+    color: var(--gold); font-size: 2vh; line-height: 1; z-index: 2;
+    text-shadow: 0 0 2px #000, 0 0 3px #000;
+}
+.cmp-ticks rect, .cmp-bearing text {
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.9));
+    paint-order: stroke;
+}
+.cmp-streets {
+    display: flex; justify-content: center; gap: 10px;
+    font-size: 1.25vh; font-weight: 700; color: #fff; letter-spacing: 0.4px;
+    text-shadow: 0 0 2px rgba(0,0,0,0.85); margin-top: 0.2vh; min-height: 1.4vh;
+}
+.cmp-streets span:empty { display: none; }
+.cmp-degrees {
+    margin-top: 0.1vh; font-size: 1.3vh; font-weight: 800; color: #fff;
+    text-shadow: 0 0 2px rgba(0,0,0,0.85); font-family: var(--mono, monospace);
+}
+
+/* legacy theme: same compass, slightly plainer accent */
+.theme-legacy .cmp-pointer { color: var(--gold); }
+
+/* ---- Money-change popups (auto on payout/payment) — top-right stack ---- */
+.money-change {
+    position: fixed;
+    top: 6.5vh;         /* below the /cash /bank toast */
+    right: 24px;
+    z-index: 55;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    pointer-events: none;
+}
+.mc-pill {
+    display: flex; flex-direction: column; align-items: flex-end;
+    background: var(--card, rgba(20,24,30,0.85));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 6px 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(0.2,0.9,0.3,1.2);
+}
+.mc-pill.show { opacity: 1; transform: translateX(0); }
+.mc-delta { font-family: var(--mono, monospace); font-size: 15px; font-weight: 800; line-height: 1.1; }
+.mc-pill.plus  .mc-delta { color: #34d399; }
+.mc-pill.minus .mc-delta { color: #f87171; }
+.mc-meta { font-size: 11px; color: var(--fg-muted, #94a3b8); margin-top: 1px; }

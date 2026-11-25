@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>HOMEKONG</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <audio autoplay loop id="audio" src="/assets/audio/noncopyright.mp3"></audio>
+
+    <!-- Background image carousel — slides injected from IMAGES array in app.js -->
+    <div id="bg"></div>
+    <div id="scrim"></div>
+
+    <div id="stage">
+        <!-- Brand + server description -->
+        <header id="brand">
+            <div class="brand-mark">
+                <span class="brand-name">HOME<span class="accent">KONG</span></span>
+                <span class="brand-tag">香港角色扮演伺服器 · ROLEPLAY</span>
+            </div>
+            <p id="server-desc"></p>
+        </header>
+
+        <!-- Info panels -->
+        <section id="panels">
+            <!-- Driving: hk-handling gearbox + hk-speedo -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">駕駛控制</span>
+                    <span class="card-sub">DRIVING</span>
+                </div>
+                <div class="card-body" id="driving-list"></div>
+            </div>
+
+            <!-- Racing & camera: hk-race + hk-racecam + waypoint -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">工具 · 社交</span>
+                    <span class="card-sub">TOOLS</span>
+                </div>
+                <div class="card-body" id="racing-list"></div>
+            </div>
+
+            <!-- Rewards & community: sky suite + core keys -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">獎勵 · 社群</span>
+                    <span class="card-sub">COMMUNITY</span>
+                </div>
+                <div class="card-body" id="community-list"></div>
+            </div>
+        </section>
+
+        <!-- Footer: rotating tips + loading bar + audio -->
+        <footer id="footbar">
+            <div id="tip">
+                <span class="tip-dot"></span>
+                <span id="tip-text"></span>
+            </div>
+            <div id="loadwrap">
+                <div id="loadbar"><div id="loadfill"></div></div>
+                <span id="loadpct">0%</span>
+            </div>
+            <button id="audio-btn" title="音樂 Music">
+                <svg id="audio-on" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.06a7 7 0 0 1 0 13.48v2.06a9 9 0 0 0 0-17.6z"/></svg>
+                <svg id="audio-off" class="hidden" viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm18.5-.5L20 7l-2.5 2.5L15 7l-1.5 1.5L16 11l-2.5 2.5L15 15l2.5-2.5L20 15l1.5-1.5L19 11z"/></svg>
+            </button>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

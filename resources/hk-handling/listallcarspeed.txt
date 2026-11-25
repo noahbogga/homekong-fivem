@@ -1,0 +1,128 @@
+granvia | Toyota Granvia 2019 | 10.80 | 10.30 | ? | 170
+towrod | Ford F-350 Super Duty Tow Truck 2020 | 9.80 | 9.40 | ? | 150
+gcmmiev2010 | Mitsubishi i-MiEV 2010 | 15.00 | 14.50 | ? | 130
+evoque | Land Rover Range Rover Evoque 2011 | 7.60 | 7.20 | 20.50 | 200
+hkchar | Dodge Charger Pursuit 2015 | 5.50 | 5.30 | 13.80 | 250
+hkgt17 | Ford GT 2017 | 3.00 | 2.90 | 7.50 | 347
+hkm4 | BMW M4 Competition F82 2019 | 3.80 | 3.60 | 9.20 | 280
+hkmst | Ford Mustang GT 2018 | 4.30 | 4.10 | 10.50 | 250
+hksave | Ford Explorer 2018 | 6.80 | 6.50 | 17.50 | 200
+intercept2 | Ford Police Interceptor Utility 2018 | 6.80 | 6.50 | 17.50 | 200
+hkbus | Volvo B7L / Alexander ALX400 Bus ~2005 | 28.00 | 27.00 | ? | 85
+hkrtaxi3 | Toyota Crown Comfort Taxi 2010 | 13.50 | 13.00 | ? | 160
+430s | Ferrari F430 Scuderia 2007 | 3.60 | 3.50 | 9.50 | 320
+adr8 | Audi R8 V10 Performance 2023 | 3.40 | 3.20 | 8.50 | 330
+focusrs | Ford Focus RS 2016 | 4.70 | 4.50 | 11.20 | 250
+gcmg37convertible | Infiniti G37 Convertible 2009 | 6.00 | 5.80 | 15.50 | 240
+ikx3_bat23 | The Batman Batmobile 2022 | ? | ? | ? | ?
+m6f13 | BMW M6 F13 2012 | 4.20 | 4.00 | 10.00 | 305
+lp670sv | Lamborghini Murciélago LP670-4 SV 2009 | 3.20 | 3.10 | 8.00 | 342
+4runner | Toyota 4Runner TRD Pro 2021 | 7.80 | 7.50 | 20.00 | 180
+cooper05 | MINI Cooper S 2005 | 7.50 | 7.20 | 19.00 | 220
+fk2 | Honda Civic Type R FK2 2015 | 5.70 | 5.50 | 13.50 | 270
+16m4gts | BMW M4 GTS 2016 | 3.80 | 3.60 | 9.00 | 305
+20s63c | Mercedes-AMG S63 Coupe 2020 | 3.50 | 3.30 | 8.50 | 300
+amggt63 | Mercedes-AMG GT 63 S 2018 | 3.10 | 3.00 | 7.80 | 315
+cla45 | Mercedes-AMG CLA 45 2015 | 4.70 | 4.50 | 11.50 | 270
+continental17 | Lincoln Continental 2017 | 6.50 | 6.20 | 16.50 | 230
+hktaxi | Audi RS6 Avant C8 2020 | 3.60 | 3.40 | 9.00 | 305
+ikx3_m5cs22 | BMW M5 CS 2022 | 2.90 | 2.80 | 7.20 | 305
+stradale18 | Maserati GranTurismo MC Stradale 2018 | 4.50 | 4.30 | 10.80 | 300
+chall70 | Dodge Challenger R/T 1970 | 6.50 | 6.30 | 16.00 | 220
+charger69 | Dodge Charger R/T 1969 | 6.80 | 6.60 | 17.00 | 210
+mst302 | Ford Mustang Boss 302 1969 | 6.00 | 5.80 | 15.00 | 220
+sgt500 | Shelby GT500 1967 | 5.50 | 5.30 | 14.00 | 240
+soulrunner | Plymouth Road Runner 1970 | 6.20 | 6.00 | 15.50 | 210
+ss69 | Chevrolet Camaro SS 1969 | 6.50 | 6.30 | 16.00 | 210
+v877 | Aston Martin V8 Vantage 1977 | 6.50 | 6.30 | 16.50 | 240
+jp12 | Jeep Wrangler Rubicon 2012 | 8.50 | 8.20 | 22.00 | 160
+ram2500 | Dodge RAM 2500 2020 | 7.50 | 7.20 | 19.00 | 180
+sl65bs | Mercedes-Benz SL 65 AMG Black Series 2008 | 3.80 | 3.60 | 9.00 | 320
+2019m5 | BMW M5 Competition 2019 | 3.20 | 3.10 | 7.80 | 305
+a6 | Audi A6 2020 | 5.50 | 5.30 | 13.50 | 250
+civic | Honda Civic 2020 | 8.50 | 8.20 | 22.00 | 200
+ct5v2022 | Cadillac CT5-V Blackwing 2022 | 3.90 | 3.70 | 9.50 | 300
+merce63s | Mercedes-AMG E63 S W213 2016 | 3.40 | 3.30 | 8.20 | 300
+rs721 | Audi RS7 C8 2021 | 3.50 | 3.40 | 8.50 | 305
+wulingsx | Wuling Hongguang S1 2016 | 12.00 | 11.50 | ? | 160
+08r35 | Nissan GT-R R35 2008 | 3.80 | 3.60 | 9.50 | 315
+10r8 | Audi R8 V10 2010 | 4.00 | 3.80 | 9.80 | 310
+19ftype | Jaguar F-Type P300 2019 | 5.00 | 4.80 | 12.00 | 280
+2016rs7 | Audi RS7 C7 2016 | 3.70 | 3.50 | 9.00 | 305
+458it | Ferrari 458 Italia 2009 | 3.40 | 3.30 | 8.50 | 325
+a80 | Toyota Supra MK4 1994 | 5.00 | 4.80 | 12.50 | 250
+amggts | Mercedes-AMG GT S 2017 | 3.80 | 3.60 | 9.20 | 310
+amgone1 | Mercedes-AMG ONE 2021 | 2.90 | 2.80 | 6.80 | 350
+aqv | Alfa Romeo Giulia Quadrifoglio 2017 | 4.00 | 3.80 | 9.80 | 300
+c63s | Mercedes-AMG C63 S W205 2016 | 3.90 | 3.70 | 9.50 | 290
+dzsian | Lamborghini Sián FKP 37 2020 | 2.80 | 2.70 | 6.50 | 350
+e632021 | Mercedes-AMG E63 S W213 2021 | 3.40 | 3.30 | 8.20 | 300
+evo9 | Mitsubishi Lancer Evolution IX 2007 | 4.50 | 4.30 | 11.00 | 250
+f812c21 | Ferrari 812 Competizione 2022 | 2.90 | 2.80 | 6.80 | 340
+fer296fh5 | Ferrari 296 GTB 2022 | 2.90 | 2.80 | 6.80 | 330
+ferf8fh5 | Ferrari F8 Tributo 2022 | 2.90 | 2.80 | 6.80 | 340
+golf75r19 | Volkswagen Golf R Mk7.5 2019 | 4.70 | 4.50 | 11.50 | 270
+gt430 | Lotus Evora GT430 2019 | 3.70 | 3.50 | 9.00 | 305
+gt50019 | Ford Shelby Mustang GT500 2019 | 3.30 | 3.20 | 8.00 | 290
+hs2000 | Honda S2000 1999 | 5.50 | 5.30 | 13.50 | 240
+ikx3_4gts25 | Porsche 911 Targa 4 GTS 2025 | 3.50 | 3.40 | 8.50 | 310
+ikx3_civicr23 | Honda Civic Type R FL5 2024 | 5.00 | 4.80 | 12.00 | 270
+ikx3_gtam21 | Alfa Romeo Giulia GTAm 2021 | 3.60 | 3.50 | 8.80 | 300
+kiagt | Kia Stinger GT 2020 | 4.70 | 4.50 | 11.50 | 270
+lanex400 | Mitsubishi Lancer Evolution X FQ-400 2010 | 3.80 | 3.60 | 9.50 | 280
+lp610 | Lamborghini Huracán LP610-4 2015 | 3.20 | 3.10 | 7.80 | 325
+lp640 | Lamborghini Murciélago LP640 2006 | 3.50 | 3.40 | 8.50 | 330
+m3e92 | BMW M3 E92 2007 | 4.80 | 4.60 | 11.50 | 250
+m4f82 | BMW M4 F82 2019 | 3.80 | 3.60 | 9.20 | 280
+mk3vr6 | Volkswagen Golf GTI VR6 Mk3 1993 | 7.50 | 7.20 | 19.00 | 220
+na1 | Honda NSX Type R NA1 1992 | 5.00 | 4.80 | 12.50 | 270
+nsx17 | Acura NSX NC1 2017 | 3.50 | 3.40 | 8.50 | 307
+oycpro | Mercedes-AMG GT R Pro 2024 | 3.50 | 3.40 | 8.50 | 320
+plaid | Tesla Model S Plaid 2022 | 2.10 | 2.00 | 4.80 | 322
+r32 | Nissan Skyline GT-R R32 1992 | 5.50 | 5.30 | 13.50 | 250
+redeye | Dodge Challenger SRT Hellcat Redeye 2019 | 3.40 | 3.30 | 8.20 | 330
+rx7 | Mazda RX-7 FD3S 2000 | 5.00 | 4.80 | 12.50 | 250
+s15 | Nissan Silvia S15 1999 | 5.50 | 5.30 | 14.00 | 250
+s65amg | Mercedes-Benz S65 AMG W222 2014 | 4.20 | 4.00 | 10.00 | 300
+soullfa | Lexus LFA 2010 | 3.70 | 3.60 | 9.00 | 325
+supersport | Bugatti Veyron Super Sport 2011 | 2.50 | 2.40 | 6.20 | 415
+thegtrn24 | Nissan GT-R Nismo Final Edition 2024 | 2.70 | 2.60 | 6.50 | 320
+thetcnca | Lamborghini Temerario 2023 | 2.80 | 2.70 | 6.80 | 340
+thettrs20 | Audi TT RS Final Edition 2023 | 3.60 | 3.50 | 8.80 | 280
+wmlykan16 | W Motors Lykan HyperSport 2016 | 2.80 | 2.70 | 6.80 | 395
+galaxyroamer | Custom build (GTA replication unknown) | ? | ? | ? | ?
+ikx3dark24 | Ford Mustang GT 2024 | 4.00 | 3.80 | 9.80 | 270
+redeye21 | Dodge Charger SRT Hellcat 2021 | 3.60 | 3.50 | 8.80 | 320
+mb300sl | Mercedes-Benz 300SL Gullwing 1954 | 8.00 | 7.70 | 22.00 | 250
+taki2000gt | Toyota 2000GT 1966 | 8.50 | 8.20 | 23.00 | 220
+18performante | Lamborghini Huracán Performante 2018 | 2.90 | 2.80 | 7.00 | 325
+20sf90 | Ferrari SF90 Stradale 2021 | 2.50 | 2.40 | 5.80 | 340
+570ss | McLaren 570S Spider 2018 | 3.20 | 3.10 | 7.80 | 328
+agera2011 | Koenigsegg Agera 2011 | 3.00 | 2.90 | 7.20 | 390
+c7 | Chevrolet Corvette Stingray C7 2014 | 3.80 | 3.60 | 9.20 | 290
+centenario | Lamborghini Centenario LP770-4 2017 | 2.80 | 2.70 | 6.80 | 350
+cgt | Porsche Carrera GT 2008 | 3.90 | 3.70 | 9.50 | 330
+chiron | Bugatti Chiron 2017 | 2.40 | 2.30 | 5.80 | 420
+devel22 | Devel Sixteen 2022 | ? | ? | ? | ?
+fgt | Ford GT 2005 | 3.50 | 3.40 | 8.50 | 330
+gallardo07 | Lamborghini Gallardo Superleggera LP570-4 2007 | 3.80 | 3.60 | 9.50 | 315
+gemera | Koenigsegg Gemera 2022 | 1.90 | 1.80 | 4.50 | 400
+gt17 | Ford GT 2017 | 3.00 | 2.90 | 7.50 | 347
+ikx3_750s23 | McLaren 750S 2024 | 2.80 | 2.70 | 6.50 | 332
+ikx3daytona22 | Ferrari Daytona SP3 2022 | 2.80 | 2.70 | 6.50 | 340
+lavn | Bugatti La Voiture Noire 2020 | ? | ? | ? | 420
+lp700 | Lamborghini Aventador LP700-4 2013 | 2.90 | 2.80 | 7.00 | 350
+m600s | Noble M600 Speedster 2017 | 3.00 | 2.90 | 7.50 | 362
+mgt | Ford Mustang GT 2015 | 4.50 | 4.30 | 11.00 | 250
+murc640r | Lamborghini Murciélago LP640 Roadster 2008 | 3.50 | 3.40 | 8.50 | 330
+oycrev | Lamborghini Revuelto 2024 | 2.50 | 2.40 | 5.80 | 350
+slsamg | Mercedes-Benz SLS AMG 2010 | 3.80 | 3.60 | 9.20 | 317
+utopia23 | Pagani Utopia 2023 | 2.70 | 2.60 | 6.50 | 370
+venomf5 | Hennessey Venom F5 2022 | 2.60 | 2.50 | 6.00 | 500
+23esv | Cadillac Escalade ESV 2020 | 5.80 | 5.60 | 14.50 | 200
+bmwxm | BMW XM 2024 | 4.30 | 4.10 | 10.50 | 270
+oycdefender | Land Rover Defender 110 2021 | 6.50 | 6.20 | 17.00 | 200
+u8 | BYD Yangwang U8 2024 | 3.60 | 3.50 | 9.00 | 200
+x6mf16 | BMW X6 M F16 2016 | 4.20 | 4.00 | 10.00 | 280
+alphardhr | Toyota Alphard 2019 | 9.50 | 9.10 | 24.00 | 180
+manyau | Vapid Manyau (Ford Transit-style delivery van) | 11.50 | 11.00 | ? | 140
