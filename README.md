@@ -1,8 +1,24 @@
-# HOMEKONG FiveM Resources
+**# Informal intro**
 
-Custom FiveM resources written for **HOMEKONG**, a Hong Kong-themed GTA V roleplay server (QBCore framework, game build 3258). Shared by [**noahbogga**](https://github.com/noahbogga) under the GPL-3.0 licence: free to use, change and share, as long as you credit **noahbogga** and keep your changes open under GPL-3.0 too (see [Licence](#licence)).
+This is a pile of vibe-coded FiveM resources that used to run on **HOMEKONG**, a Hong Kong-themed GTA V roleplay server.
 
-The server is no longer running. These are the resources as they were on 2026-10-29, cleaned for public release. Every key, token, webhook and identifier was replaced with a placeholder.
+The server (and these scripts) have been shut down. Co-owner wasn’t cooperative and eventually forced me to quit cold-handed. After that there wasn’t much point in keeping the project going, so I pulled the plug and rather just dump these scripts out here than leave them sitting cold in storage forever.
+
+Few of the scripts require your own hosting system, and another few script require to build an external backend system (hk-sportsbetting, hk-wheel etc)
+
+**There will be no more updates from me.**  
+No bug fixes, no new features, no compatibility patches for future game builds or QBCore versions. Consider this project frozen.
+
+That said, it’s GPL-3.0. If you want to take any of this, fix it, improve it, or turn it into something else, you’re free to fork/branch it. Just keep the licence and credit where it’s due.
+
+---
+
+**# HOMEKONG FiveM Resources**
+
+Custom FiveM resources originally written for **HOMEKONG**, a Hong Kong-themed GTA V roleplay server (QBCore framework, game build 3258+).
+
+Shared by [**noahbogga**](https://github.com/noahbogga) under the GPL-3.0 licence.  
+You’re free to use, modify, and share these as long as you credit **noahbogga** and keep your changes under GPL-3.0 as well (see [Licence](#licence)).
 
 ## Resources
 | Resource | What it does |
@@ -30,7 +46,7 @@ The server is no longer running. These are the resources as they were on 2026-10
 | `hk-vehiclesales` | Used vehicle sales between players. |
 | `hk-vehlib` | Shared vehicle utility layer that hk-handling, hk-speedo and the other vehicle scripts build on. |
 | `hk-weathersystem` | Real Hong Kong weather in game: reads the Hong Kong Observatory's current report every 10 minutes and cycles matching GTA weather. |
-| `hk-wheel` | Steering-wheel bridge: takes input from a local DirectInput companion app over a localhost WebSocket into hk-handling and sends force-feedback data back. |
+| `hk-wheel` | (very unfinished) Steering-wheel bridge: takes input from a local DirectInput companion app over a localhost WebSocket into hk-handling and sends force-feedback data back. |
 | `hk-whysthisdealer` | "Why's This Dealer?" meme: your car bounces to the beat, synced for nearby players. **Bring your own audio** (see its README). |
 
 ## Requirements
